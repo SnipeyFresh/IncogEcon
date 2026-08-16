@@ -1,0 +1,111 @@
+economy:
+  # VAULT uses the economy provider currently registered through Vault.
+  mode: VAULT
+  starting-balance: 500.0
+  currency-symbol: "$"
+  pay-minimum: 0.01
+
+market:
+  # Global toggle for the entire server market.
+  # true  = players can buy regardless of stored stock; purchases do not reduce stock.
+  # false = purchases require and consume actual server stock.
+  infinite-stock-enabled: false
+
+  # New market materials start with 1,000 stock. On first 1.5.0 startup, existing materials below 1,000 are raised to 1,000 once.
+  initial-stock: 1000
+  target-stock: 512
+  maximum-stock-per-material: 1000000
+  buy-sell-spread: 0.22
+  minimum-price-multiplier: 0.35
+  maximum-price-multiplier: 4.0
+  demand-impact-per-item: 0.0035
+  demand-decay-per-minute: 0.985
+  maximum-demand-pressure: 1.25
+  reject-custom-items: true
+  transaction-fee-percent: 2.0
+  auto-restock:
+    enabled: true
+    interval-hours: 72
+    below-stock: 100
+    minimum-stock: 500
+    maximum-stock: 1000
+  # Materials listed here are excluded from the market. Ancient Debris is tradable by default.
+  excluded-materials: []
+
+player-shops:
+  enabled: true
+  creation-fee: 25.0
+  sales-tax-percent: 3.0
+  max-shops-per-player: 12
+  # Blocks within this radius of a registered shop are protected from
+  # other players, explosions, and piston movement. Owners may build
+  # around their own shop; incogshop.playershop.bypass bypasses protection.
+  protection-radius: 10
+  allowed-containers:
+    - CHEST
+    - TRAPPED_CHEST
+    - BARREL
+
+sell-wands:
+  enabled: true
+  material: BLAZE_ROD
+  name: "&6&lSell Wand"
+  lore:
+    - "&7Use/interact with a storage container"
+    - "&7to sell all eligible market items."
+    - ""
+    - "&eUnlimited Uses"
+
+trading:
+  enabled: true
+  request-timeout-seconds: 30
+  # Safety cap for a single player's displayed trade-money offer.
+  maximum-money-offer: 1000000000000.0
+
+saving:
+  autosave-seconds: 60
+
+messages:
+  prefix: "&6[IncogEcon]&r "
+
+auction-house:
+  enabled: true
+  listing-fee: 25.0
+  sales-tax-percent: 3.0
+  max-active-listings-per-player: 12
+  default-duration-hours: 24
+  maximum-duration-hours: 168
+  minimum-bid-increment: 1.0
+  minimum-bid-increment-percent: 5.0
+
+sell-gui:
+  enabled: true
+
+market-orders:
+  enabled: true
+  max-active-orders-per-player: 20
+  maximum-items-per-order: 100000
+  # Seller fee taken only when an order actually fills.
+  sales-tax-percent: 1.0
+
+
+discord-price-check:
+  # Requires DiscordSRV. IncogEcon uses DiscordSRV's existing bot connection;
+  # no second Discord bot token is required.
+  enabled: false
+  # Optional: Enable Discord Developer Mode, right-click the desired text channel, and Copy ID.
+  # If blank, IncogEcon uses DiscordSRV's main linked text channel.
+  channel-id: ""
+  command-prefix: "!"
+  history-resolution-minutes: 5
+  history-retention-days: 30
+  # Default windows shown by !price <item>.
+  default-windows: ["1h", "7h", "24h", "7d"]
+
+
+stash:
+  gameplay-overflow:
+    enabled: true
+    block-drops: true
+    mob-drops: true
+    notify: true
