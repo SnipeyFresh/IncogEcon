@@ -1,6 +1,6 @@
 # Features
 
-This document describes the player and administrator systems included in IncogEcon 1.8.19.
+This document describes the player and administrator systems included in IncogEcon 1.9.0.
 
 ## Bazaar-style server market
 
@@ -205,6 +205,70 @@ Similar ItemStacks are compacted when possible.
 - `all` support
 - Persistent UUID-backed balances
 
+## The Hex
+
+`/hex` opens The Hex, an item-upgrade hub modelled on Hypixel Skyblock's Hex and adapted to IncogEcon's economy.
+
+### Working on an item
+
+- Click a weapon, tool, or armor piece in your own inventory to move it into the Hex slot.
+- Click an upgrade to pay for it and apply it immediately.
+- Click **Take Item Back**, or simply close the menu, to get the item back. Anything that does not fit goes to `/stash`.
+
+The Hex works on one non-stacked item at a time. Every control is a plain left click, so Java and Bedrock players use it identically.
+
+### Essence
+
+Essence is the Hex currency. Each type is defined in `config.yml` and is earned two ways:
+
+- **Mob drops** from a configurable drop table (Wither Skeletons drop Wither Essence, the Ender Dragon drops Dragon Essence, and so on).
+- **Coin purchase** in the Hex essence shop or with `/hex buy <essence> <amount>`, when buying is enabled.
+
+Balances are shown in the Essence Pouch and with `/hex essence`, and are stored in `hex-essence.yml`.
+
+### Upgrades
+
+| Upgrade | Effect |
+|---|---|
+| **Hex Tier** | The core upgrade ladder; adds damage, armor, and toughness per level |
+| **Master Stars** | Adds damage and defence, shown as stars on the item |
+| **Hot Potato Points** | Small flat stat gains per point |
+| **Gemstone Slots** | Each unlocked slot adds a permanent stat bonus |
+| **Recombobulator** | Raises the item one rarity step |
+| **Enchantment Power** | Pushes every enchantment on the item past its normal maximum |
+| **Reforge** | Applies a reforge, rerollable at any time |
+
+Every upgrade costs coins plus a configurable amount of one essence type. Costs, caps, and stat values are all configurable, and any upgrade can be turned off.
+
+Upgrade state is written to the item's persistent data container, not to its lore, so upgrades survive drops, chests, trades, and other plugins rewriting the item's lore. The Hex only ever rewrites its own lore block and its own attribute modifiers, and it re-applies the item's built-in attributes when needed so an upgrade never strips a sword's base damage.
+
+## Plugin compatibility
+
+The Hex is built to share items with other gear plugins rather than compete with them. Each hook is optional, detected at runtime, and inactive when its plugin is not installed. IncogEcon does not depend on any of them, and `/hex compat` reports what was detected.
+
+### EcoArmor
+
+EcoArmor is a first-class target:
+
+- The Hex reads the armor set, current tier, and advancement state of an EcoArmor piece.
+- **Armor Tier Upgrade** pushes the piece one EcoArmor tier up, paid for with essence and coins instead of EcoArmor's own upgrade crystals.
+- **Armor Advancement** applies EcoArmor's advanced upgrade to the piece.
+- Both are performed through EcoArmor's own API, so the data written is exactly what EcoArmor expects to read back.
+- If the tier or advancement is refused by EcoArmor, the payment is returned automatically.
+- EcoArmor pieces can still take normal Hex upgrades on top, so a player can max both ladders on the same item.
+
+### Reforges
+
+When Auxilor's **Reforges** plugin is installed, the Hex reforge station lists that plugin's reforges for the item and applies them through its API, so stat calculation and lore stay that plugin's responsibility. IncogEcon's own reforge table is used only when no reforge plugin is present.
+
+### Custom item plugins
+
+**MMOItems**, **EcoItems**, **ItemsAdder**, **Oraxen**, and **Nexo** items are recognised and shown in the Hex compatibility panel. With `protect-unknown-custom-items` enabled (the default), the Hex refuses its own upgrades on those items rather than risking damage to another plugin's item data. Items owned by a supported armor-upgrade plugin such as EcoArmor are exempt and stay fully upgradable.
+
+### Enchantment plugins
+
+Custom enchantments that register as normal Bukkit enchantments, such as those from EcoEnchants, are picked up by the Enchantment Power upgrade with no extra configuration.
+
 ## Discord price checks
 
 Optional DiscordSRV integration provides price lookup/history commands through Discord.
@@ -242,6 +306,19 @@ Examples:
 - GUI layout design
 
 Admin-only Java-style gestures are intentionally not redesigned for Bedrock because the cross-platform requirement applies to player-facing features.
+
+## Menu design
+
+Every IncogEcon menu is built from one shared theme (`GuiTheme`), so titles, borders, buttons, and stat lines look and read the same across the plugin:
+
+- Consistent titles in the form `IncogEcon » Section · Detail`.
+- Buttons carry a header rule, their stats, and one highlighted call to action, so it is always clear what a click does.
+- Controls that cannot be used right now are shown greyed out with the reason instead of disappearing.
+- Progress bars for market supply, order fill, XP stored, auction duration, and Hex upgrade levels.
+- Standard navigation items for back, close, previous page, next page, and page counters.
+- Stat lines share one `Label: value` format across the Bazaar, Auction House, order book, stash, trade, and admin screens.
+
+Slot positions, click behaviour, and the Layout Designer are unchanged, so existing `gui-layout.yml` files and admin muscle memory still apply.
 
 ## Persistence and performance
 

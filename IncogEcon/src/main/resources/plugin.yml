@@ -1,11 +1,11 @@
 name: IncogEcon
-version: 1.8.19
+version: 1.9.0
 main: com.snipeyfresh.incogshop.IncogShopPlugin
 api-version: '26.2'
 author: SnipeyFresh
 load: POSTWORLD
 depend: [Vault]
-softdepend: [DiscordSRV]
+softdepend: [DiscordSRV, EcoArmor, Reforges, MMOItems, EcoItems, ItemsAdder, Oraxen, Nexo]
 description: Dynamic player-supplied market with orders, physical shops, player trading, Auction House, and Discord price history.
 commands:
   market:
@@ -25,6 +25,10 @@ commands:
     usage: /xpvault [deposit|withdraw] <amount|all>
     aliases: [xpbank]
     permission: incogshop.xpvault
+  hex:
+    description: Open The Hex to upgrade an item with essence and coins.
+    usage: /hex [essence|buy|compat]
+    permission: incogshop.hex
   ah:
     description: Browse and manage the Auction House.
     usage: /ah [sell|bid|buy|my|cancel|claim]
@@ -55,6 +59,17 @@ permissions:
     default: true
   incogshop.xpvault:
     default: true
+  incogshop.hex:
+    description: Allows using The Hex to upgrade items.
+    default: true
+    children:
+      incogshop.hex.buy: true
+  incogshop.hex.buy:
+    description: Allows buying essence with coins.
+    default: true
+  incogshop.hex.admin:
+    description: Allows granting and removing player essence.
+    default: op
   incogshop.orders:
     default: true
     children:
@@ -118,6 +133,7 @@ permissions:
       incogshop.sellwand.give: true
       incogshop.auction.admin: true
       incogshop.orders.admin: true
+      incogshop.hex.admin: true
   incogshop.admin.discord:
     default: op
   incogshop.admin.gui:

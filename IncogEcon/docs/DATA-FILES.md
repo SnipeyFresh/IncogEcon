@@ -11,6 +11,7 @@ IncogEcon stores runtime data under `plugins/IncogEcon/`.
 | `shops.yml` | Registered physical player shops |
 | `stash.yml` | Player overflow stash |
 | `xp-vault.yml` | Stored raw XP balances |
+| `hex-essence.yml` | Player Hex essence balances |
 | `custom-categories.yml` | Custom categories/subcategories and assignments |
 | `gui-layout.yml` | Persisted GUI layout positions |
 | `wallets.yml` | Internal/legacy wallet balances and cached player-name lookup |
@@ -20,7 +21,11 @@ IncogEcon stores runtime data under `plugins/IncogEcon/`.
 
 ## Backup recommendation
 
-Before upgrades, back up the entire `plugins/IncogEcon/` folder rather than individual files. Auction, order, shop, stash, and XP data are all persistent and should be treated as economy-critical server data.
+Before upgrades, back up the entire `plugins/IncogEcon/` folder rather than individual files. Auction, order, shop, stash, XP, and Hex essence data are all persistent and should be treated as economy-critical server data.
+
+## Hex item data
+
+Hex upgrades are stored on the item itself, in its persistent data container, not in a plugin file. Upgraded items keep their tier, stars, hot potato points, gemstone slots, rarity bump, and reforge through drops, chests, trades, and other plugins rewriting their lore. Only `hex-essence.yml` lives on disk.
 
 ## Active trades
 
