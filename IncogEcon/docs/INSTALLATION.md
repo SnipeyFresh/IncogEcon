@@ -16,7 +16,7 @@ Optional:
 
 1. Stop the server.
 2. Install Vault and a compatible economy provider.
-3. Copy `IncogEcon-1.8.19.jar` into `plugins/`.
+3. Copy `IncogEcon-1.9.0.jar` into `plugins/`.
 4. Start the server.
 5. Review `plugins/IncogEcon/config.yml`.
 6. Configure optional Discord integration if desired.

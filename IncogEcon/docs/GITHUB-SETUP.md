@@ -37,7 +37,7 @@ From the extracted `IncogEcon` folder:
 ```bash
 git init
 git add .
-git commit -m "Initial IncogEcon 1.8.19 release"
+git commit -m "Initial IncogEcon 1.9.0 release"
 git branch -M main
 git remote add origin <your-repository-url>
 git push -u origin main
@@ -52,13 +52,13 @@ For a public/team repository, consider requiring the `Build` GitHub Action to pa
 Recommended tag format:
 
 ```text
-v1.8.19
+v1.9.0
 ```
 
 Create a GitHub Release from the tag and attach:
 
 ```text
-IncogEcon-1.8.19.jar
+IncogEcon-1.9.0.jar
 ```
 
 Do not commit `target/` or compiled JARs into normal source commits; `.gitignore` excludes them.

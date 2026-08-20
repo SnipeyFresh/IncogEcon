@@ -30,13 +30,20 @@ public final class SellGui {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(new Holder(), 54, Text.color("&8IncogEcon &7• &aSell Items"));
-        ItemStack filler = ShopGui.named(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);
-        inv.setItem(CANCEL_SLOT, ShopGui.named(Material.BARRIER, "&cCancel", List.of("&7Return every item without selling.")));
-        inv.setItem(47, ShopGui.named(Material.BOOK, "&eHow This Works", List.of("&7Place eligible market items in the", "&7top 5 rows.", "", "&aClosing the menu sells everything.", "&aYou can also click Sell Now.", "", "&7Ineligible items are returned/stashed.")));
-        inv.setItem(CONFIRM_SLOT, ShopGui.named(Material.EMERALD_BLOCK, "&aSell Eligible Items", List.of("&7The server adds sold items to stock", "&7and pays your Vault balance.", "", "&eClick to sell now", "&7Closing the menu does the same thing.")));
-        inv.setItem(51, ShopGui.named(Material.GOLD_INGOT, "&6Balance: &f" + plugin.money(plugin.wallets().get(player.getUniqueId())), List.of("&7Economy: &f" + plugin.wallets().providerName())));
+        Inventory inv = Bukkit.createInventory(new Holder(), 54, GuiTheme.title("&a&l", "Sell Items"));
+        GuiTheme.bottomBar(inv, Material.LIME_STAINED_GLASS_PANE);
+        inv.setItem(CANCEL_SLOT, GuiTheme.button(Material.BARRIER, "&c&lCANCEL", List.of("&7Return every item without selling."), "Click to cancel"));
+        inv.setItem(47, GuiTheme.panel(Material.BOOK, "&e&lHOW THIS WORKS", List.of(
+                "&7Place eligible market items in the",
+                "&7top five rows.", "",
+                "&aClosing the menu sells everything.",
+                "&aSell Eligible Items does the same.", "",
+                "&8Ineligible items are returned or stashed.")));
+        inv.setItem(CONFIRM_SLOT, GuiTheme.button(Material.EMERALD_BLOCK, "&a&lSELL ELIGIBLE ITEMS", List.of(
+                "&7The server adds sold items to stock",
+                "&7and pays your balance."), "Click to sell now"));
+        inv.setItem(51, GuiTheme.panel(Material.GOLD_INGOT, "&6&lBALANCE &8• &f" + plugin.money(plugin.wallets().get(player.getUniqueId())),
+                List.of(GuiTheme.stat("Economy", plugin.wallets().providerName()))));
         player.openInventory(inv);
     }
 }

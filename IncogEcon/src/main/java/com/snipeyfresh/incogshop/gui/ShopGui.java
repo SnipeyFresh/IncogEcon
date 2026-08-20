@@ -143,7 +143,7 @@ public final class ShopGui {
 
     public void openCategories(Player player, boolean admin) {
         Inventory inv = Bukkit.createInventory(new CategoryHolder(admin), 54,
-                Text.color(admin ? "&8IncogEcon &7• &dAdmin Browse" : "&8IncogEcon &7• &6Market"));
+                GuiTheme.title(admin ? "&d&l" : "&6&l", admin ? "Admin Browse" : "Market"));
         fancyFrame(inv, admin ? Material.PURPLE_STAINED_GLASS_PANE : Material.YELLOW_STAINED_GLASS_PANE);
 
         List<String> keys = new ArrayList<>();
@@ -156,9 +156,10 @@ public final class ShopGui {
             keys.add("builtin:" + c.name());
             icons.add(c.icon());
             names.add("&6" + c.display());
-            lores.add(List.of("&7" + count + " market items",
+            lores.add(List.of(GuiTheme.RULE,
+                    GuiTheme.stat("Market items", count),
                     c == MarketCategory.ALL ? "&8Browse the entire market." : "&8Open its subcategories.",
-                    "", "&eClick to browse"));
+                    "", "&e" + GuiTheme.CHEVRON + "Click to browse"));
         }
         for (CustomCategory c : plugin.customCategories().all()) {
             long count = plugin.customCategories().materials(c.id()).stream()
@@ -166,7 +167,8 @@ public final class ShopGui {
             keys.add("custom:" + c.id());
             icons.add(c.icon());
             names.add("&d" + c.display());
-            lores.add(List.of("&7" + count + " market items", "&8Custom category", "", "&eClick to browse"));
+            lores.add(List.of(GuiTheme.RULE, GuiTheme.stat("Market items", count),
+                    "&8Custom category", "", "&e" + GuiTheme.CHEVRON + "Click to browse"));
         }
 
         int[] defaults = centeredSlots(keys.size());
@@ -180,28 +182,31 @@ public final class ShopGui {
         int ordersSlot = plugin.layouts().slot("categories", "orders", 48);
         int helpSlot = plugin.layouts().slot("categories", "help", 52);
         int balanceSlot = plugin.layouts().slot("categories", "balance", 50);
-        inv.setItem(searchSlot, named(Material.COMPASS, "&b&lSEARCH", List.of(
+        inv.setItem(searchSlot, GuiTheme.button(Material.COMPASS, "&b&lSEARCH", List.of(
                 "&7Smart matching supports aliases,",
-                "&7partial names, and minor typos.", "", "&eClick to search")));
+                "&7partial names, and minor typos."), "Click, then type your search in chat"));
 
         if (!admin) {
-            inv.setItem(ordersSlot, named(Material.WRITABLE_BOOK, "&bMarket Orders", List.of(
-                    "&7Browse all active Buy and Sell Orders.", "", "&eClick to browse")));
-            inv.setItem(balanceSlot, named(Material.GOLD_INGOT, "&6Balance: &f" + plugin.money(plugin.wallets().get(player.getUniqueId())),
-                    List.of("&7Buy and sell directly from the market.")));
-            inv.setItem(helpSlot, named(Material.BOOK, "&eBazaar Guide", List.of(
+            inv.setItem(ordersSlot, GuiTheme.button(Material.WRITABLE_BOOK, "&b&lMARKET ORDERS",
+                    List.of("&7Browse every active Buy and Sell Order."), "Click to browse"));
+            inv.setItem(balanceSlot, GuiTheme.panel(Material.GOLD_INGOT,
+                    "&6&lBALANCE &8• &f" + plugin.money(plugin.wallets().get(player.getUniqueId())),
+                    List.of(GuiTheme.stat("Economy", plugin.wallets().providerName()),
+                            "&7Buy and sell directly from the market.")));
+            inv.setItem(helpSlot, GuiTheme.panel(Material.BOOK, "&e&lBAZAAR GUIDE", List.of(
                     "&7Click a market item to open its",
                     "&7Buy / Sell / Orders page.",
                     "&7You can also click an eligible item",
                     "&7in your own inventory to jump to it.", "",
-                    "&eClick categories above to begin")));
+                    "&8Every action has its own button, so no",
+                    "&8Java-only clicks are required.")));
         } else {
-            inv.setItem(ordersSlot, named(Material.NETHER_STAR, "&d&lADMIN STUDIO", List.of(
+            inv.setItem(ordersSlot, GuiTheme.button(Material.NETHER_STAR, "&d&lADMIN STUDIO", List.of(
                     "&7Create/remove categories, organize items,",
-                    "&7add materials, and edit the GUI.", "", "&eClick to open")));
+                    "&7add materials, and edit the GUI."), "Click to open"));
             inv.setItem(balanceSlot, infiniteStockButton());
-            inv.setItem(helpSlot, named(Material.ARMOR_STAND, "&5Layout Designer", List.of(
-                    "&7Move buttons and item slots visually.", "", "&eClick to customize")));
+            inv.setItem(helpSlot, GuiTheme.button(Material.ARMOR_STAND, "&5&lLAYOUT DESIGNER", List.of(
+                    "&7Move buttons and item slots visually."), "Click to customize"));
         }
         fillEmpty(inv, Material.GRAY_STAINED_GLASS_PANE);
         player.openInventory(inv);
@@ -209,19 +214,23 @@ public final class ShopGui {
 
     public void openSubcategories(Player player, boolean admin, MarketCategory category) {
         if (category == MarketCategory.ALL) { openMarket(player, 0, admin, MarketCategory.ALL, null, ""); return; }
-        Inventory inv = Bukkit.createInventory(new SubcategoryHolder(admin, category), 54, Text.color("&8" + (admin ? "IncogEcon Admin" : "IncogEcon") + " &7• &f" + category.display()));
+        Inventory inv = Bukkit.createInventory(new SubcategoryHolder(admin, category), 54, GuiTheme.title(admin ? "&d&l" : "&6&l", category.display(), admin ? "Admin" : null));
         fancyFrame(inv, admin ? Material.PURPLE_STAINED_GLASS_PANE : Material.ORANGE_STAINED_GLASS_PANE);
-        inv.setItem(4, named(category.icon(), "&6&l" + category.display(), List.of("&7Choose a section below.", "&8All buttons are centered for quick scanning.")));
+        inv.setItem(4, GuiTheme.panel(category.icon(), "&6&l" + category.display().toUpperCase(Locale.ROOT),
+                List.of("&7Choose a section below.", "&8Buttons stay centered for quick scanning.")));
         List<MarketSubcategory> subs = MarketSubcategory.forCategory(category);
         int[] subcategorySlots = subcategoryLayoutSlots(subs.size());
         for (int i = 0; i < subs.size() && i < subcategorySlots.length; i++) {
             MarketSubcategory sub = subs.get(i);
             long count = filtered(category, sub, "", admin).size();
-            inv.setItem(subcategorySlots[i], named(sub.icon(), "&e" + sub.display(), List.of("&7" + count + " items", "", "&eClick to browse")));
+            inv.setItem(subcategorySlots[i], GuiTheme.button(sub.icon(), "&e" + sub.display(),
+                    List.of(GuiTheme.stat("Items", count)), "Click to browse"));
         }
-        inv.setItem(plugin.layouts().slot("subcategories","all",47), named(Material.CHEST, "&6All " + category.display(), List.of("&7Show every item in this category.", "", "&eClick to browse")));
-        inv.setItem(plugin.layouts().slot("subcategories","search",49), named(Material.COMPASS, "&bSearch " + category.display(), List.of("&7Smart search within this category.", "&7Typos and partial names are supported.", "", "&eClick to search")));
-        inv.setItem(plugin.layouts().slot("subcategories","back",45), named(Material.ARROW, "&eBack", List.of("&7Return to categories.")));
+        inv.setItem(plugin.layouts().slot("subcategories","all",47), GuiTheme.button(Material.CHEST, "&6All " + category.display(),
+                List.of("&7Show every item in this category."), "Click to browse"));
+        inv.setItem(plugin.layouts().slot("subcategories","search",49), GuiTheme.button(Material.COMPASS, "&bSearch " + category.display(),
+                List.of("&7Smart search within this category.", "&7Typos and partial names are supported."), "Click, then type in chat"));
+        inv.setItem(plugin.layouts().slot("subcategories","back",45), GuiTheme.back("categories"));
         inv.setItem(plugin.layouts().slot("subcategories","status",51), named(admin ? Material.COMMAND_BLOCK : Material.GOLD_INGOT, admin ? "&cAdmin Mode" : "&6Balance: &f" + plugin.money(plugin.wallets().get(player.getUniqueId())), admin ? List.of("&7Category management is available", "&7from the item list using Q.") : List.of("&7Select a subcategory to continue.")));
         if (admin) inv.setItem(50, infiniteStockButton());
         fillEmpty(inv, Material.GRAY_STAINED_GLASS_PANE);
@@ -237,7 +246,7 @@ public final class ShopGui {
         int page = Math.max(0, Math.min(pages - 1, requestedPage));
         String section = subcategory != null ? subcategory.display() : category.display();
         String suffix = query == null || query.isBlank() ? section : "Search: " + query;
-        Inventory inv = Bukkit.createInventory(new MarketHolder(page, admin, category, subcategory, query == null ? "" : query), 54, Text.color("&8" + (admin ? "IncogEcon Admin" : "IncogEcon") + " &7• &f" + suffix));
+        Inventory inv = Bukkit.createInventory(new MarketHolder(page, admin, category, subcategory, query == null ? "" : query), 54, GuiTheme.title(admin ? "&d&l" : "&6&l", suffix, admin ? "Admin" : null));
         ItemStack filler = named(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
         for (int i = 36; i < 54; i++) inv.setItem(i, filler);
         int start = page * ITEMS_PER_PAGE;
@@ -246,17 +255,23 @@ public final class ShopGui {
             inv.setItem(itemSlots[logical], marketIcon(materials.get(start + logical), admin));
         }
 
-        inv.setItem(itemControlSlots().get("previous"), named(Material.ARROW, "&ePrevious Page", page > 0 ? List.of("&7Go to page &f" + page) : List.of("&8Already on the first page.")));
-        inv.setItem(itemControlSlots().get("back"), named(Material.CHEST, category == MarketCategory.ALL ? "&6Categories" : "&6Subcategories", List.of(category == MarketCategory.ALL ? "&7Return to category selection." : "&7Return to " + category.display() + " subcategories.")));
-        inv.setItem(itemControlSlots().get("search"), named(Material.COMPASS, "&bSearch", List.of("&7Current: &f" + ((query == null || query.isBlank()) ? "None" : query), "", "&eClick, then type your search in chat")));
-        if (query != null && !query.isBlank()) inv.setItem(itemControlSlots().get("clear"), named(Material.BARRIER, "&cClear Search", List.of("&7Return to the current section.")));
-        inv.setItem(itemControlSlots().get("status"), named(admin ? Material.COMMAND_BLOCK : Material.GOLD_INGOT, admin ? "&cAdmin Controls" : "&6Balance: &f" + plugin.money(plugin.wallets().get(player.getUniqueId())), admin ? List.of("&aLeft &7+64 stock", "&cRight &7-64 stock", "&dCtrl+Q &7set exact stock", "&aShift-left &7+10% base price", "&cShift-right &7-10% base price", "&eMiddle &7reset price/pressure", "&bF &7cycle Buy+Sell / Sell Only / Disabled", "&dQ &7change category") : List.of("&eClick any market item", "&7to open its Bazaar page.", "&7Buy, sell, and order actions", "&7each have their own button.")));
+        inv.setItem(itemControlSlots().get("previous"), GuiTheme.previousPage(page, page > 0));
+        inv.setItem(itemControlSlots().get("back"), GuiTheme.button(Material.CHEST,
+                category == MarketCategory.ALL ? "&6Categories" : "&6Subcategories",
+                List.of(category == MarketCategory.ALL ? "&7Return to category selection." : "&7Return to " + category.display() + " subcategories."),
+                "Click to go back"));
+        inv.setItem(itemControlSlots().get("search"), GuiTheme.button(Material.COMPASS, "&b&lSEARCH",
+                List.of(GuiTheme.stat("Current", (query == null || query.isBlank()) ? "None" : query)),
+                "Click, then type your search in chat"));
+        if (query != null && !query.isBlank()) inv.setItem(itemControlSlots().get("clear"), GuiTheme.button(Material.BARRIER, "&cClear Search",
+                List.of("&7Drop the search filter and return", "&7to the current section."), "Click to clear"));
+        inv.setItem(itemControlSlots().get("status"), GuiTheme.panel(admin ? Material.COMMAND_BLOCK : Material.GOLD_INGOT, admin ? "&c&lADMIN CONTROLS" : "&6&lBALANCE &8• &f" + plugin.money(plugin.wallets().get(player.getUniqueId())), admin ? List.of("&aLeft &7+64 stock", "&cRight &7-64 stock", "&dCtrl+Q &7set exact stock", "&aShift-left &7+10% base price", "&cShift-right &7-10% base price", "&eMiddle &7reset price/pressure", "&bF &7cycle Buy+Sell / Sell Only / Disabled", "&dQ &7change category") : List.of("&eClick any market item", "&7to open its Bazaar page.", "&7Buy, sell, and order actions", "&7each have their own button.")));
         if (admin) inv.setItem(itemControlSlots().get("orders"), infiniteStockButton());
-        else inv.setItem(itemControlSlots().get("orders"), named(Material.WRITABLE_BOOK, "&bAll Market Orders",
-                List.of("&7Browse all active Buy/Sell Orders.", "", "&eClick to browse")));
-        inv.setItem(itemControlSlots().get("section"), named(category.icon(), "&6" + section, List.of("&7Current market section.")));
-        inv.setItem(itemControlSlots().get("page"), named(Material.PAPER, "&fPage &e" + (page + 1) + "&7/&e" + pages, List.of("&7Items shown: &f" + materials.size())));
-        inv.setItem(itemControlSlots().get("next"), named(Material.ARROW, "&eNext Page", page + 1 < pages ? List.of("&7Go to page &f" + (page + 2)) : List.of("&8Already on the last page.")));
+        else inv.setItem(itemControlSlots().get("orders"), GuiTheme.button(Material.WRITABLE_BOOK, "&b&lALL MARKET ORDERS",
+                List.of("&7Browse all active Buy/Sell Orders."), "Click to browse"));
+        inv.setItem(itemControlSlots().get("section"), GuiTheme.panel(category.icon(), "&6" + section, List.of("&7Current market section.")));
+        inv.setItem(itemControlSlots().get("page"), GuiTheme.pageIndicator(page + 1, pages, "Items shown", materials.size()));
+        inv.setItem(itemControlSlots().get("next"), GuiTheme.nextPage(page + 2, page + 1 < pages));
         player.openInventory(inv);
     }
 
@@ -276,19 +291,19 @@ public final class ShopGui {
         CustomCategory category = plugin.customCategories().get(categoryId);
         if (category == null) { openCategories(player, admin); return; }
         Inventory inv = Bukkit.createInventory(new CustomSubcategoryHolder(category.id(), admin), 54,
-                Text.color("&8" + (admin ? "IncogEcon Admin" : "IncogEcon") + " &7• &d" + category.display()));
+                GuiTheme.title(admin ? "&d&l" : "&b&l", category.display(), admin ? "Admin" : null));
         decorate(inv, Material.GRAY_STAINED_GLASS_PANE);
-        inv.setItem(4, named(category.icon(), "&d" + category.display(), List.of("&7Choose a custom subcategory.")));
+        inv.setItem(4, GuiTheme.panel(category.icon(), "&b&l" + category.display().toUpperCase(Locale.ROOT), List.of("&7Choose a custom subcategory.")));
         List<CustomSubcategory> subs = plugin.customCategories().subcategories(category.id());
         int[] slots = centeredSlots(subs.size());
         for (int i=0;i<subs.size()&&i<slots.length;i++) {
             CustomSubcategory sub=subs.get(i);
             long count=plugin.customCategories().materials(category.id(),sub.id()).stream()
                     .filter(m->admin||plugin.market().isMarketEnabled(m)).count();
-            inv.setItem(slots[i],named(sub.icon(),"&e"+sub.display(),List.of("&7"+count+" items","","&eClick to browse")));
+            inv.setItem(slots[i],GuiTheme.button(sub.icon(),"&e"+sub.display(),List.of(GuiTheme.stat("Items", count)),"Click to browse"));
         }
-        inv.setItem(39,named(Material.CHEST,"&6All "+category.display(),List.of("&7Show all items in this custom category.","","&eClick")));
-        inv.setItem(45,named(Material.ARROW,"&eBack",List.of("&7Return to categories.")));
+        inv.setItem(39,GuiTheme.button(Material.CHEST,"&6All "+category.display(),List.of("&7Show all items in this custom category."),"Click to browse"));
+        inv.setItem(45,GuiTheme.back("categories"));
         player.openInventory(inv);
     }
 
@@ -305,26 +320,26 @@ public final class ShopGui {
         int page=Math.max(0,Math.min(pages-1,requestedPage));
         String title=sub!=null?sub.display():category.display();
         Inventory inv=Bukkit.createInventory(new CustomMarketHolder(category.id(),sub==null?"":sub.id(),page,admin),54,
-                Text.color("&8"+(admin?"IncogEcon Admin":"IncogEcon")+" &7• &d"+title));
+                GuiTheme.title(admin?"&d&l":"&b&l", title, admin?"Admin":null));
         ItemStack filler=named(Material.BLACK_STAINED_GLASS_PANE," ",List.of());
         for(int i=36;i<54;i++)inv.setItem(i,filler);
         int start=page*ITEMS_PER_PAGE;
         for(int slot=0;slot<ITEMS_PER_PAGE&&start+slot<materials.size();slot++)inv.setItem(slot,marketIcon(materials.get(start+slot),admin));
-        inv.setItem(45,named(Material.ARROW,"&ePrevious Page",List.of()));
-        inv.setItem(46,named(Material.CHEST,specific?"&6Subcategories":"&6Categories",List.of("&7Go back.")));
-        inv.setItem(49,named(sub!=null?sub.icon():category.icon(),"&d"+title,List.of("&7Items: &f"+materials.size())));
-        inv.setItem(52,named(Material.PAPER,"&fPage &e"+(page+1)+"&7/&e"+pages,List.of()));
-        inv.setItem(53,named(Material.ARROW,"&eNext Page",List.of()));
+        inv.setItem(45,GuiTheme.previousPage(page,page>0));
+        inv.setItem(46,GuiTheme.button(Material.CHEST,specific?"&6Subcategories":"&6Categories",List.of("&7Return to the previous menu."),"Click to go back"));
+        inv.setItem(49,GuiTheme.panel(sub!=null?sub.icon():category.icon(),"&b&l"+title.toUpperCase(Locale.ROOT),List.of(GuiTheme.stat("Items", materials.size()))));
+        inv.setItem(52,GuiTheme.pageIndicator(page+1,pages,"Items shown",materials.size()));
+        inv.setItem(53,GuiTheme.nextPage(page+2,page+1<pages));
         player.openInventory(inv);
     }
 
     private ItemStack infiniteStockButton() {
         boolean enabled = plugin.market().isInfiniteStockEnabled();
-        return named(enabled ? Material.LIME_DYE : Material.GRAY_DYE,
-                enabled ? "&aInfinite Stock: ENABLED" : "&cInfinite Stock: DISABLED",
+        return GuiTheme.toggle(enabled, "INFINITE STOCK",
                 enabled
-                        ? List.of("&7Players can buy items even when", "&7stored market stock is 0.", "&7Purchases do not reduce stock.", "&7Selling still adds to stock.", "", "&eClick to disable infinite stock.")
-                        : List.of("&7Purchases require actual stock", "&7and reduce stored supply normally.", "", "&eClick to enable infinite stock."));
+                        ? List.of("&7Players can buy items even when", "&7stored market stock is 0.", "&7Purchases do not reduce stock.", "&7Selling still adds to stock.")
+                        : List.of("&7Purchases require actual stock", "&7and reduce stored supply normally."),
+                enabled ? "Click to disable infinite stock" : "Click to enable infinite stock");
     }
 
     public List<Material> filtered(MarketCategory category, String query) { return filtered(category, null, query, false); }
@@ -481,7 +496,7 @@ public final class ShopGui {
     }
 
     public void openPlacementCategories(Player player, Material material) {
-        Inventory inv = Bukkit.createInventory(new PlacementCategoryHolder(material), 54, Text.color("&8Organize Item &7• &fCategory"));
+        Inventory inv = Bukkit.createInventory(new PlacementCategoryHolder(material), 54, GuiTheme.title("&d&l", "Organize Item", "Category"));
         decorate(inv, Material.PURPLE_STAINED_GLASS_PANE);
         inv.setItem(4, marketIcon(material, true));
         List<MarketCategory> categories = java.util.Arrays.stream(MarketCategory.values()).filter(c -> c != MarketCategory.ALL).toList();
@@ -489,15 +504,17 @@ public final class ShopGui {
         for (int i = 0; i < categories.size() && i < categorySlots.length; i++) {
             MarketCategory c = categories.get(i);
             boolean current = plugin.market().categoryOf(material) == c;
-            inv.setItem(categorySlots[i], named(c.icon(), (current ? "&a" : "&6") + c.display(), List.of(current ? "&aCurrent category" : "&7Move item here", "", "&eClick to continue")));
+            inv.setItem(categorySlots[i], GuiTheme.button(c.icon(), (current ? "&a" : "&6") + c.display(),
+                    List.of(current ? "&aCurrent category" : "&7Move item here"), current ? "Already selected" : "Click to continue"));
         }
-        inv.setItem(40, named(Material.RECOVERY_COMPASS, "&bReset Automatic Placement", List.of("&7Remove your custom category choice", "&7and use IncogEcon's automatic grouping.", "", "&eClick to reset")));
-        inv.setItem(45, named(Material.ARROW, "&eCancel", List.of("&7Return to the admin market.")));
+        inv.setItem(40, GuiTheme.button(Material.RECOVERY_COMPASS, "&bReset Automatic Placement",
+                List.of("&7Remove your custom category choice", "&7and use IncogEcon's automatic grouping."), "Click to reset"));
+        inv.setItem(45, GuiTheme.button(Material.ARROW, "&eCancel", List.of("&7Return to the admin market."), "Click to cancel"));
         player.openInventory(inv);
     }
 
     public void openPlacementSubcategories(Player player, Material material, MarketCategory category) {
-        Inventory inv = Bukkit.createInventory(new PlacementSubcategoryHolder(material, category), 54, Text.color("&8Organize Item &7• &f" + category.display()));
+        Inventory inv = Bukkit.createInventory(new PlacementSubcategoryHolder(material, category), 54, GuiTheme.title("&d&l", "Organize Item", category.display()));
         decorate(inv, Material.PURPLE_STAINED_GLASS_PANE);
         inv.setItem(4, marketIcon(material, true));
         List<MarketSubcategory> subs = MarketSubcategory.forCategory(category);
@@ -505,9 +522,10 @@ public final class ShopGui {
         for (int i = 0; i < subs.size() && i < subcategorySlots.length; i++) {
             MarketSubcategory sub = subs.get(i);
             boolean current = plugin.market().categoryOf(material) == category && plugin.market().subcategoryOf(material) == sub;
-            inv.setItem(subcategorySlots[i], named(sub.icon(), (current ? "&a" : "&e") + sub.display(), List.of(current ? "&aCurrent subcategory" : "&7Place item here", "", "&eClick to save")));
+            inv.setItem(subcategorySlots[i], GuiTheme.button(sub.icon(), (current ? "&a" : "&e") + sub.display(),
+                    List.of(current ? "&aCurrent subcategory" : "&7Place item here"), "Click to save"));
         }
-        inv.setItem(45, named(Material.ARROW, "&eBack", List.of("&7Choose a different category.")));
+        inv.setItem(45, GuiTheme.back("the category list"));
         player.openInventory(inv);
     }
 
@@ -517,11 +535,16 @@ public final class ShopGui {
         MarketEntry e = plugin.market().entry(material);
         meta.setDisplayName(Text.color("&f" + Text.prettyEnum(material.name())));
         List<String> lore = new ArrayList<>();
-        lore.add(Text.color("&8────────────────"));
-        lore.add(Text.color("&7Category: &f" + plugin.market().categoryOf(material).display()));
-        lore.add(Text.color("&7Section: &f" + plugin.market().subcategoryOf(material).display()));
+        lore.add(Text.color(GuiTheme.RULE));
+        lore.add(Text.color(GuiTheme.stat("Category", plugin.market().categoryOf(material).display())));
+        lore.add(Text.color(GuiTheme.stat("Section", plugin.market().subcategoryOf(material).display())));
         lore.add("");
-        lore.add(Text.color("&7Server Stock: &f" + e.stock()));
+        boolean infinite = plugin.market().isInfiniteStockEnabled();
+        lore.add(Text.color(GuiTheme.stat("Server Stock", infinite ? "Unlimited" : String.valueOf(e.stock()))));
+        if (!infinite) {
+            double reference = Math.max(1.0, plugin.getConfig().getDouble("market.target-stock", 512) * 2.0);
+            lore.add(Text.color(GuiTheme.bar(e.stock() / reference, 10, "&a", "&8") + " &8supply"));
+        }
         MarketMode mode = plugin.market().marketMode(material);
         lore.add(Text.color("&7Market Mode: " + (mode == MarketMode.BUY_SELL ? "&aBuy & Sell" : mode == MarketMode.SELL_ONLY ? "&eSell Only" : "&cDisabled")));
         lore.add(Text.color((plugin.market().isBuyAllowed(material) ? "&aBuy: &f" + plugin.money(plugin.market().buyUnitPrice(material)) : "&cBuy: &8Unavailable")));
@@ -538,7 +561,7 @@ public final class ShopGui {
             lore.add(Text.color("&8Auto Restock: Admin Studio → Item Organizer"));
         } else {
             lore.add("");
-            lore.add(Text.color("&e&lCLICK TO OPEN BAZAAR"));
+            lore.add(Text.color("&e" + GuiTheme.CHEVRON + "&e&lCLICK TO OPEN BAZAAR"));
             lore.add(Text.color("&7Buy or sell instantly, or create"));
             lore.add(Text.color("&7Buy and Sell Orders for this item."));
             double bestBuyOrder = plugin.orders().bestBuy(material);
@@ -559,57 +582,47 @@ public final class ShopGui {
     }
 
     public void openPlayerShop(Player player, PlayerShop shop) {
-        Inventory inv = Bukkit.createInventory(new PlayerShopHolder(shop.id()), 45, Text.color("&8Player Shop &7• &f" + shop.ownerName()));
+        Inventory inv = Bukkit.createInventory(new PlayerShopHolder(shop.id()), 45, GuiTheme.title("&a&l", "Player Shop", shop.ownerName()));
         decorate(inv, Material.BLACK_STAINED_GLASS_PANE);
         ItemStack display = shop.item().clone();
         ItemMeta meta = display.getItemMeta();
         List<String> lore = meta.hasLore() && meta.getLore() != null ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-        lore.add(""); lore.add(Text.color("&7Price each: &f" + plugin.money(shop.price())));
-        lore.add(Text.color("&7Stock: &f" + plugin.shops().stock(shop)));
-        lore.add(Text.color("&7Seller: &f" + shop.ownerName()));
+        lore.add(""); lore.add(Text.color(GuiTheme.RULE));
+        lore.add(Text.color(GuiTheme.stat("Price each", plugin.money(shop.price()))));
+        lore.add(Text.color(GuiTheme.stat("Stock", plugin.shops().stock(shop))));
+        lore.add(Text.color(GuiTheme.stat("Seller", shop.ownerName())));
         meta.setLore(lore); display.setItemMeta(meta);
         inv.setItem(13, display);
-        inv.setItem(29, named(Material.LIME_CONCRETE, "&aBuy 1", List.of("&7Cost: &f" + plugin.money(shop.price()))));
+        inv.setItem(29, GuiTheme.button(Material.LIME_CONCRETE, "&a&lBUY 1", List.of(GuiTheme.stat("Cost", plugin.money(shop.price()))), "Click to buy one"));
         int stack = Math.max(1, shop.item().getMaxStackSize());
-        inv.setItem(31, named(Material.LIME_CONCRETE, "&aBuy up to " + stack, List.of("&7Limited by stock, balance,", "&7and inventory space.")));
-        inv.setItem(33, named(Material.BOOK, "&eShop Information", List.of("&7Owner: &f" + shop.ownerName(), "&7Stock: &f" + plugin.shops().stock(shop), "&7Price: &f" + plugin.money(shop.price()), "", "&7Owners can use the stock button", "&7or /pshop stock while looking at it.")));
+        inv.setItem(31, GuiTheme.button(Material.LIME_CONCRETE, "&a&lBUY UP TO " + stack,
+                List.of("&7Limited by stock, balance,", "&7and inventory space."), "Click to buy a stack"));
+        inv.setItem(33, GuiTheme.panel(Material.BOOK, "&e&lSHOP INFORMATION",
+                List.of(GuiTheme.stat("Owner", shop.ownerName()), GuiTheme.stat("Stock", plugin.shops().stock(shop)),
+                        GuiTheme.stat("Price", plugin.money(shop.price())), "",
+                        "&8Owners can use the stock button",
+                        "&8or /pshop stock while looking at it.")));
         if (shop.owner().equals(player.getUniqueId()) || player.hasPermission("incogshop.playershop.bypass")) {
-            inv.setItem(40, named(Material.CHEST, "&6Open Shop Stock", List.of("&7Open the physical chest/barrel inventory", "&7and add matching items to restock.", "", "&eClick to open stock")));
+            inv.setItem(40, GuiTheme.button(Material.CHEST, "&6&lOPEN SHOP STOCK",
+                    List.of("&7Open the physical chest/barrel inventory", "&7and add matching items to restock."), "Click to open stock"));
         }
         player.openInventory(inv);
     }
 
     private static void fillEmpty(Inventory inv, Material material) {
-        ItemStack filler = named(material, " ", List.of());
-        for (int i = 0; i < inv.getSize(); i++) if (inv.getItem(i) == null) inv.setItem(i, filler);
+        GuiTheme.fillEmpty(inv, material);
     }
 
     private static void fancyFrame(Inventory inv, Material accent) {
-        ItemStack trim = named(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
-        ItemStack accentPane = named(accent, " ", List.of());
-        int rows = inv.getSize() / 9;
-        for (int slot = 0; slot < inv.getSize(); slot++) {
-            int row = slot / 9, col = slot % 9;
-            if (row == 0 || row == rows - 1 || col == 0 || col == 8) inv.setItem(slot, trim);
-        }
-        if (inv.getSize() >= 45) {
-            inv.setItem(1, accentPane); inv.setItem(7, accentPane);
-            inv.setItem(inv.getSize() - 8, accentPane); inv.setItem(inv.getSize() - 2, accentPane);
-        }
+        GuiTheme.frame(inv, accent);
     }
 
     private static void decorate(Inventory inv, Material material) {
-        ItemStack filler = named(material, " ", List.of());
-        for (int i = 0; i < inv.getSize(); i++) inv.setItem(i, filler);
+        GuiTheme.fill(inv, material);
     }
 
+    /** Kept as the project-wide item builder; the styling itself lives in {@link GuiTheme}. */
     public static ItemStack named(Material material, String name, List<String> lore) {
-        ItemStack stack = new ItemStack(material);
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(Text.color(name));
-        meta.setLore(lore.stream().map(Text::color).toList());
-        meta.addItemFlags(ItemFlag.values());
-        stack.setItemMeta(meta);
-        return stack;
+        return GuiTheme.item(material, name, lore);
     }
 }

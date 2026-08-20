@@ -25,6 +25,8 @@ import com.snipeyfresh.incogshop.xp.XpVaultManager;
 import com.snipeyfresh.incogshop.gui.StashGui;
 import com.snipeyfresh.incogshop.gui.XpVaultGui;
 import com.snipeyfresh.incogshop.gui.AdminSetupGui;
+import com.snipeyfresh.incogshop.gui.HexGui;
+import com.snipeyfresh.incogshop.hex.HexManager;
 import com.snipeyfresh.incogshop.custom.CustomCategoryManager;
 import com.snipeyfresh.incogshop.custom.GuiLayoutManager;
 import com.snipeyfresh.incogshop.gui.LayoutEditorGui;
@@ -63,6 +65,8 @@ public final class IncogShopPlugin extends JavaPlugin {
     private XpVaultManager xpVault;
     private XpVaultGui xpVaultGui;
     private AdminSetupGui adminSetupGui;
+    private HexManager hex;
+    private HexGui hexGui;
     private int autosavePhase;
 
     @Override
@@ -97,6 +101,8 @@ public final class IncogShopPlugin extends JavaPlugin {
         xpVault = new XpVaultManager(this);
         xpVaultGui = new XpVaultGui(this);
         adminSetupGui = new AdminSetupGui(this);
+        hex = new HexManager(this);
+        hexGui = new HexGui(this);
 
         market.load();
         customCategories.load();
@@ -106,6 +112,7 @@ public final class IncogShopPlugin extends JavaPlugin {
         shops.load();
         auctions.load();
         orders.load();
+        hex.load();
 
         history = new PriceHistoryManager(this);
         history.load();
@@ -121,6 +128,11 @@ public final class IncogShopPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("sell")).setExecutor(new SellCommand(this));
         Objects.requireNonNull(getCommand("stash")).setExecutor(new StashCommand(this));
         Objects.requireNonNull(getCommand("xpvault")).setExecutor(new XpVaultCommand(this));
+
+        HexCommand hexCommand = new HexCommand(this);
+        PluginCommand hexPluginCommand = Objects.requireNonNull(getCommand("hex"));
+        hexPluginCommand.setExecutor(hexCommand);
+        hexPluginCommand.setTabCompleter(hexCommand);
 
         SellWandCommand sellWandCommand = new SellWandCommand(this);
         PluginCommand sellWandPluginCommand = Objects.requireNonNull(getCommand("sellwand"));
@@ -151,6 +163,8 @@ public final class IncogShopPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new StashGuiListener(this), this);
         getServer().getPluginManager().registerEvents(new StashOverflowListener(this), this);
         getServer().getPluginManager().registerEvents(new XpVaultGuiListener(this), this);
+        getServer().getPluginManager().registerEvents(new HexGuiListener(this), this);
+        getServer().getPluginManager().registerEvents(new HexEssenceListener(this), this);
         getServer().getPluginManager().registerEvents(new AuctionGuiListener(this), this);
         getServer().getPluginManager().registerEvents(new OrderGuiListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopProtectionListener(this), this);
@@ -175,7 +189,7 @@ public final class IncogShopPlugin extends JavaPlugin {
         long saveSliceTicks = Math.max(20L, saveCycleTicks / 8L);
         getServer().getScheduler().runTaskTimer(this, this::autosaveSlice, saveSliceTicks, saveSliceTicks);
 
-        getLogger().info("IncogEcon 1.8.19 by SnipeyFresh enabled. Economy provider: " + wallets.providerName() + ". Tradable materials: " + market.tradableMaterials().size() + ".");
+        getLogger().info("IncogEcon 1.9.0 by SnipeyFresh enabled. Economy provider: " + wallets.providerName() + ". Tradable materials: " + market.tradableMaterials().size() + ".");
     }
 
     @Override public void onDisable() {
@@ -209,6 +223,8 @@ public final class IncogShopPlugin extends JavaPlugin {
     public XpVaultManager xpVault() { return xpVault; }
     public XpVaultGui xpVaultGui() { return xpVaultGui; }
     public AdminSetupGui adminSetupGui() { return adminSetupGui; }
+    public HexManager hex() { return hex; }
+    public HexGui hexGui() { return hexGui; }
 
     public String prefix() { return Text.color(getConfig().getString("messages.prefix", "&6[IncogEcon]&r ")); }
     public String money(double amount) { return getConfig().getString("economy.currency-symbol", "$") + String.format("%,.2f", amount); }
@@ -255,7 +271,7 @@ public final class IncogShopPlugin extends JavaPlugin {
     }
 
     private void autosaveSlice() {
-        switch (autosavePhase++ & 7) {
+        switch (autosavePhase++ % 9) {
             case 0 -> { if (market != null) market.save(); }
             case 1 -> { if (auctions != null) auctions.save(); }
             case 2 -> { if (orders != null) orders.save(); }
@@ -264,6 +280,7 @@ public final class IncogShopPlugin extends JavaPlugin {
             case 5 -> { if (xpVault != null) xpVault.save(); }
             case 6 -> { if (customCategories != null) customCategories.save(); }
             case 7 -> { if (wallets != null) wallets.save(); }
+            case 8 -> { if (hex != null) hex.save(); }
         }
     }
 
@@ -276,6 +293,7 @@ public final class IncogShopPlugin extends JavaPlugin {
         if (customCategories != null) customCategories.save();
         if (stash != null) stash.save();
         if (xpVault != null) xpVault.save();
+        if (hex != null) hex.save();
     }
 
     public void reloadAll() {
@@ -293,6 +311,7 @@ public final class IncogShopPlugin extends JavaPlugin {
         shops.load();
         auctions.load();
         orders.load();
+        hex.load();
 
         if (history == null) history = new PriceHistoryManager(this);
         history.load();

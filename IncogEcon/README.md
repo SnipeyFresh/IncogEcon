@@ -2,12 +2,12 @@
 
 **IncogEcon** is a full economy suite for **Paper/Purpur 26.2** with a Bazaar-style dynamic server market, player Buy/Sell Orders, an Auction House, physical player shops, secure item-and-money trading, Sell Wands, overflow storage, an XP Vault, Discord price history, and extensive administration tools.
 
-**Current version:** `1.8.19`  
+**Current version:** `1.9.0`  
 **Developer:** SnipeyFresh  
 **Java:** 25+  
 **Build system:** Maven
 
-> IncogEcon 1.8.19 is designed so **all normal player-facing workflows work without Java-only inventory gestures**. Bedrock players connecting through a correctly configured Geyser/Floodgate setup can use the same player features as Java players. Admin-only GUI shortcuts remain Java-style.
+> IncogEcon 1.9.0 is designed so **all normal player-facing workflows work without Java-only inventory gestures**. Bedrock players connecting through a correctly configured Geyser/Floodgate setup can use the same player features as Java players. Admin-only GUI shortcuts remain Java-style.
 
 ## Highlights
 
@@ -17,6 +17,8 @@
 - **Physical player shops** backed by real chest/barrel inventory, exact ItemStack matching, protection, and cross-platform stock access.
 - **Secure player trading** for items and money with two-sided confirmation and automatic reset when an offer changes.
 - **Bulk Sell GUI** and **command-only Sell Wands** that feed eligible items into the server market.
+- **The Hex** item-upgrade hub with essence currencies, Hex tiers, Master Stars, Hot Potato points, gemstone slots, the Recombobulator, enchantment overlevelling, and reforges.
+- **Gear-plugin compatibility** for the Hex, led by **EcoArmor** tier and advancement upgrades, plus Auxilor Reforges, MMOItems, EcoItems, ItemsAdder, Oraxen, and Nexo item recognition. None of them is a dependency.
 - **Persistent stash** for inventory overflow and safe item delivery.
 - **XP Vault** storing raw experience points.
 - **DiscordSRV price checks** and historical market price tracking.
@@ -48,12 +50,17 @@ See [CROSS-PLATFORM.md](CROSS-PLATFORM.md) for the full compatibility design.
 ### Optional
 
 - DiscordSRV `1.30.5` for Discord price commands/history integration
+- EcoArmor for Hex armor tier and advancement upgrades
+- Auxilor Reforges for plugin-provided reforges in the Hex
+- MMOItems, EcoItems, ItemsAdder, Oraxen, or Nexo for custom-item recognition in the Hex
 - Geyser/Floodgate for Bedrock connectivity; IncogEcon does **not** directly depend on their APIs
+
+Every optional plugin above is detected at runtime through its own API. IncogEcon builds and runs without any of them installed, and `/hex compat` reports which hooks are active.
 
 ## Installation
 
 1. Install Vault and your economy provider.
-2. Place `IncogEcon-1.8.19.jar` in the server's `plugins/` folder.
+2. Place `IncogEcon-1.9.0.jar` in the server's `plugins/` folder.
 3. Start the server once.
 4. Configure `plugins/IncogEcon/config.yml` as needed.
 5. Restart or use `/marketadmin reload` after safe configuration changes.
@@ -69,7 +76,7 @@ mvn clean package
 Output:
 
 ```text
-target/IncogEcon-1.8.19.jar
+target/IncogEcon-1.9.0.jar
 ```
 
 See [MAVEN-BUILD.md](MAVEN-BUILD.md) for build prerequisites and Arch Linux notes.
@@ -82,6 +89,7 @@ See [MAVEN-BUILD.md](MAVEN-BUILD.md) for build prerequisites and Arch Linux note
 | `/sell` | Open the bulk Sell GUI |
 | `/stash` | Open overflow storage |
 | `/xpvault` / `/xpbank` | Open the XP Vault |
+| `/hex` | Open The Hex item-upgrade menu |
 | `/ah` / `/auction` / `/auctionhouse` | Open the Auction House |
 | `/pshop ...` | Create/manage physical player shops |
 | `/trade ...` | Securely trade items and money |
