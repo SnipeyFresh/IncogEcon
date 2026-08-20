@@ -70,6 +70,25 @@ Command example:
 /marketadmin mode diamond sell_only
 ```
 
+## The Hex
+
+Essence grants and removals:
+
+```text
+/hex give <player> <essence> <amount>
+/hex take <player> <essence> <amount>
+```
+
+Both require `incogshop.hex.admin` and target online players. Balances are stored in `hex-essence.yml` and are saved on the normal autosave cycle.
+
+Compatibility check:
+
+```text
+/hex compat
+```
+
+Each hook reports as **active**, **installed, API not recognised**, or **not installed**. "Installed, API not recognised" means the plugin is present but its classes or methods did not match anything IncogEcon knows; the Hex disables that hook rather than guessing, and the same warning is written to the server log at startup. Upgrade tuning, drop tables, and hook toggles all live under `hex:` in `config.yml`, and `/marketadmin reload` re-reads them and re-detects hooks.
+
 ## Discord diagnostics
 
 ```text

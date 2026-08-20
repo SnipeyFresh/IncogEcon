@@ -10,6 +10,8 @@ IncogEcon intentionally keeps the legacy `incogshop.*` permission namespace afte
 | `incogshop.sell` | `true` | Use `/sell` |
 | `incogshop.stash` | `true` | Use `/stash` |
 | `incogshop.xpvault` | `true` | Use `/xpvault` / `/xpbank` |
+| `incogshop.hex` | `true` | Use `/hex` and receive essence drops |
+| `incogshop.hex.buy` | `true` | Buy essence with coins |
 | `incogshop.orders` | `true` | Parent permission for normal market orders |
 | `incogshop.orders.buy` | `true` | Create Buy Orders |
 | `incogshop.orders.sell` | `true` | Create Sell Orders |
@@ -33,6 +35,7 @@ IncogEcon intentionally keeps the legacy `incogshop.*` permission namespace afte
 | `incogshop.auction.bypasslimit` | `op` | Ignore Auction House listing limit |
 | `incogshop.auction.admin` | `op` | Auction administration/permanent listings |
 | `incogshop.sellwand.give` | `op` | Use `/sellwand` to obtain a wand |
+| `incogshop.hex.admin` | `op` | Grant or remove player essence with `/hex give` and `/hex take` |
 
 ## IncogEcon administration
 

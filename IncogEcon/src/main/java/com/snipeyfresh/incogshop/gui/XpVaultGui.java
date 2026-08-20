@@ -23,36 +23,36 @@ public final class XpVaultGui {
     public XpVaultGui(IncogShopPlugin plugin){ this.plugin = plugin; }
 
     public void open(Player player) {
-        Inventory inv=Bukkit.createInventory(new Holder(),27, Text.color("&8IncogEcon &7• &aXP Vault"));
-        ItemStack filler=ShopGui.named(Material.BLACK_STAINED_GLASS_PANE," ",List.of());
-        for(int i=0;i<27;i++) inv.setItem(i,filler);
+        Inventory inv=Bukkit.createInventory(new Holder(),27, GuiTheme.title("&a&l", "XP Vault"));
+        GuiTheme.fill(inv, GuiTheme.TRIM);
 
         long current=plugin.xpVault().current(player);
         long stored=plugin.xpVault().stored(player.getUniqueId());
+        long total=Math.max(1L, current+stored);
 
-        inv.setItem(4,ShopGui.named(Material.EXPERIENCE_BOTTLE,"&aXP Vault",
-                List.of("&7Current XP: &f"+current,
-                        "&7Stored XP: &f"+stored,
-                        "&7Current Level: &f"+player.getLevel(),
+        inv.setItem(4,GuiTheme.panel(Material.EXPERIENCE_BOTTLE,"&a&lXP VAULT",
+                List.of(GuiTheme.stat("Carried XP", current),
+                        GuiTheme.stat("Stored XP", stored),
+                        GuiTheme.stat("Current Level", player.getLevel()),
+                        GuiTheme.bar((double)stored/(double)total, 12, "&a", "&8") + " &8stored share",
                         "",
-                        "&7XP is stored as raw points,",
-                        "&7not just levels.")));
+                        "&8XP is stored as raw points, not levels.")));
 
-        inv.setItem(DEPOSIT_25,ShopGui.named(Material.LIME_DYE,"&aDeposit 25%",
-                List.of("&7Deposit about &f"+Math.max(0,current/4)+" XP","", "&eClick")));
-        inv.setItem(DEPOSIT_50,ShopGui.named(Material.LIME_CONCRETE,"&aDeposit 50%",
-                List.of("&7Deposit about &f"+Math.max(0,current/2)+" XP","", "&eClick")));
-        inv.setItem(DEPOSIT_ALL,ShopGui.named(Material.EMERALD_BLOCK,"&aDeposit All",
-                List.of("&7Deposit all &f"+current+" XP","", "&eClick")));
+        inv.setItem(DEPOSIT_25,GuiTheme.button(Material.LIME_DYE,"&aDeposit 25%",
+                List.of("&7About &f"+Math.max(0,current/4)+" XP&7 leaves your bar."),"Click to deposit"));
+        inv.setItem(DEPOSIT_50,GuiTheme.button(Material.LIME_CONCRETE,"&aDeposit 50%",
+                List.of("&7About &f"+Math.max(0,current/2)+" XP&7 leaves your bar."),"Click to deposit"));
+        inv.setItem(DEPOSIT_ALL,GuiTheme.button(Material.EMERALD_BLOCK,"&a&lDEPOSIT ALL",
+                List.of("&7Stores all &f"+current+" XP&7 you carry."),"Click to deposit everything"));
 
-        inv.setItem(WITHDRAW_25,ShopGui.named(Material.YELLOW_DYE,"&eWithdraw 25%",
-                List.of("&7Withdraw about &f"+Math.max(0,stored/4)+" XP","", "&eClick")));
-        inv.setItem(WITHDRAW_50,ShopGui.named(Material.GOLD_INGOT,"&6Withdraw 50%",
-                List.of("&7Withdraw about &f"+Math.max(0,stored/2)+" XP","", "&eClick")));
-        inv.setItem(WITHDRAW_ALL,ShopGui.named(Material.GOLD_BLOCK,"&6Withdraw All",
-                List.of("&7Withdraw all &f"+stored+" XP","", "&eClick")));
+        inv.setItem(WITHDRAW_25,GuiTheme.button(Material.YELLOW_DYE,"&eWithdraw 25%",
+                List.of("&7About &f"+Math.max(0,stored/4)+" XP&7 returns to you."),"Click to withdraw"));
+        inv.setItem(WITHDRAW_50,GuiTheme.button(Material.GOLD_INGOT,"&6Withdraw 50%",
+                List.of("&7About &f"+Math.max(0,stored/2)+" XP&7 returns to you."),"Click to withdraw"));
+        inv.setItem(WITHDRAW_ALL,GuiTheme.button(Material.GOLD_BLOCK,"&6&lWITHDRAW ALL",
+                List.of("&7Returns all &f"+stored+" XP&7 you stored."),"Click to withdraw everything"));
 
-        inv.setItem(22,ShopGui.named(Material.BARRIER,"&cClose",List.of()));
+        inv.setItem(22,GuiTheme.close());
         player.openInventory(inv);
     }
 }

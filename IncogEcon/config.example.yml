@@ -109,3 +109,203 @@ stash:
     block-drops: true
     mob-drops: true
     notify: true
+
+
+# The Hex - essence banking and item upgrades, inspired by Hypixel Skyblock.
+# Players place one weapon, tool, or armor piece in /hex and spend essence and
+# coins to push it toward its maximum.
+hex:
+  enabled: true
+
+  essence:
+    # Lets players trade coins for essence in the Hex essence shop and /hex buy.
+    allow-buying: true
+    # Essence currencies. The key is the id used in commands and upgrade costs.
+    # Set buy-price to 0 to make an essence earnable only, never purchasable.
+    types:
+      WITHER:
+        display: "&8Wither Essence"
+        icon: WITHER_SKELETON_SKULL
+        buy-price: 750.0
+      UNDEAD:
+        display: "&2Undead Essence"
+        icon: ROTTEN_FLESH
+        buy-price: 120.0
+      DRAGON:
+        display: "&5Dragon Essence"
+        icon: DRAGON_BREATH
+        buy-price: 900.0
+      SPIDER:
+        display: "&aSpider Essence"
+        icon: SPIDER_EYE
+        buy-price: 150.0
+      ICE:
+        display: "&bIce Essence"
+        icon: BLUE_ICE
+        buy-price: 200.0
+      DIAMOND:
+        display: "&bDiamond Essence"
+        icon: DIAMOND
+        buy-price: 500.0
+      GOLD:
+        display: "&6Gold Essence"
+        icon: GOLD_INGOT
+        buy-price: 300.0
+      CRIMSON:
+        display: "&cCrimson Essence"
+        icon: CRIMSON_FUNGUS
+        buy-price: 650.0
+    drops:
+      enabled: true
+      # Shows an action bar message when essence drops.
+      notify: true
+      # Any Bukkit entity type can be listed here.
+      mobs:
+        WITHER_SKELETON: { type: WITHER, chance: 0.35, minimum: 1, maximum: 3 }
+        WITHER: { type: WITHER, chance: 1.0, minimum: 25, maximum: 40 }
+        ZOMBIE: { type: UNDEAD, chance: 0.10, minimum: 1, maximum: 1 }
+        SKELETON: { type: UNDEAD, chance: 0.10, minimum: 1, maximum: 1 }
+        ZOMBIE_VILLAGER: { type: UNDEAD, chance: 0.20, minimum: 1, maximum: 2 }
+        ENDER_DRAGON: { type: DRAGON, chance: 1.0, minimum: 40, maximum: 60 }
+        SPIDER: { type: SPIDER, chance: 0.12, minimum: 1, maximum: 1 }
+        CAVE_SPIDER: { type: SPIDER, chance: 0.15, minimum: 1, maximum: 2 }
+        STRAY: { type: ICE, chance: 0.20, minimum: 1, maximum: 2 }
+        SNOW_GOLEM: { type: ICE, chance: 0.25, minimum: 1, maximum: 2 }
+        PIGLIN_BRUTE: { type: GOLD, chance: 0.30, minimum: 1, maximum: 3 }
+        PIGLIN: { type: GOLD, chance: 0.10, minimum: 1, maximum: 1 }
+        BLAZE: { type: CRIMSON, chance: 0.20, minimum: 1, maximum: 2 }
+        WARDEN: { type: DIAMOND, chance: 1.0, minimum: 20, maximum: 30 }
+        ELDER_GUARDIAN: { type: DIAMOND, chance: 1.0, minimum: 5, maximum: 10 }
+
+  # Each upgrade costs coin-base + coin-per-level * (level - 1), and the same
+  # shape for essence. The per-level stat values are applied as item attribute
+  # modifiers owned by IncogEcon, so they never overwrite another plugin's.
+  upgrades:
+    tier:
+      enabled: true
+      max-level: 10
+      essence-type: WITHER
+      essence-base: 4
+      essence-per-level: 4
+      coin-base: 2500.0
+      coin-per-level: 2500.0
+      attack-damage-per-level: 0.75
+      armor-per-level: 0.5
+      armor-toughness-per-level: 0.25
+    stars:
+      enabled: true
+      max-level: 5
+      essence-type: DRAGON
+      essence-base: 10
+      essence-per-level: 10
+      coin-base: 10000.0
+      coin-per-level: 10000.0
+      attack-damage-per-star: 1.5
+      armor-per-star: 1.0
+      armor-toughness-per-star: 0.5
+    hot-potato:
+      enabled: true
+      max-level: 10
+      essence-type: GOLD
+      essence-base: 3
+      essence-per-level: 2
+      coin-base: 1500.0
+      coin-per-level: 750.0
+      attack-damage-per-point: 0.5
+      armor-per-point: 0.25
+      health-per-point: 2.0
+    gemstone-slots:
+      enabled: true
+      max-level: 3
+      essence-type: DIAMOND
+      essence-base: 15
+      essence-per-level: 15
+      coin-base: 20000.0
+      coin-per-level: 20000.0
+      attack-damage-per-slot: 1.0
+      armor-per-slot: 1.0
+    recombobulator:
+      enabled: true
+      max-level: 1
+      essence-type: CRIMSON
+      essence-base: 25
+      essence-per-level: 0
+      coin-base: 50000.0
+      coin-per-level: 0.0
+    enchantments:
+      enabled: true
+      # How far past an enchantment's normal maximum the Hex may push it.
+      max-level-above-vanilla: 2
+      essence-type: UNDEAD
+      essence-base: 6
+      essence-per-level: 6
+      coin-base: 1500.0
+      coin-per-level: 1500.0
+
+  reforge:
+    enabled: true
+    essence-type: SPIDER
+    essence-cost: 3
+    coin-cost: 1500.0
+    # Used only when no supported reforge plugin is installed. When one is,
+    # the Hex offers that plugin's reforges and applies them through its API.
+    native:
+      SHARP:
+        display: "&cSharp"
+        attack-damage: 3.0
+      FIERCE:
+        display: "&4Fierce"
+        attack-damage: 4.5
+        health: -2.0
+      HEAVY:
+        display: "&8Heavy"
+        armor: 4.0
+        armor-toughness: 1.0
+        speed: -0.005
+      LIGHT:
+        display: "&fLight"
+        speed: 0.01
+        attack-damage: 1.0
+      GODLY:
+        display: "&6Godly"
+        attack-damage: 2.0
+        armor: 2.0
+        health: 2.0
+      PURE:
+        display: "&bPure"
+        armor: 2.0
+        armor-toughness: 1.5
+        health: 4.0
+
+  integrations:
+    # Every hook below is optional. IncogEcon does not depend on these plugins;
+    # each one is detected at runtime and simply stays inactive when missing.
+    ecoarmor:
+      enabled: true
+      # Pushes an EcoArmor piece one tier up through EcoArmor's own API.
+      tier-upgrade:
+        essence-type: DRAGON
+        essence-cost: 20
+        coin-cost: 25000.0
+      # Applies EcoArmor's advanced upgrade to the piece.
+      advancement:
+        essence-type: WITHER
+        essence-cost: 30
+        coin-cost: 40000.0
+    # Auxilor's Reforges plugin. When present it replaces the native reforges.
+    reforges:
+      enabled: true
+    mmoitems:
+      enabled: true
+    ecoitems:
+      enabled: true
+    itemsadder:
+      enabled: true
+    oraxen:
+      enabled: true
+    nexo:
+      enabled: true
+    # Refuses native Hex upgrades on items issued by a custom-item plugin that
+    # IncogEcon does not know how to upgrade safely. Items owned by a supported
+    # armor-upgrade plugin such as EcoArmor are still fully upgradable.
+    protect-unknown-custom-items: true

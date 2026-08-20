@@ -30,7 +30,7 @@ public final class OrderBookGui {
         }
 
         Inventory inv = Bukkit.createInventory(new BookHolder(material), 54,
-                Text.color("&8Bazaar &7• &f" + Text.prettyEnum(material.name())));
+                GuiTheme.title("&6&l", "Bazaar", Text.prettyEnum(material.name())));
         fill(inv);
 
         long stock = plugin.market().entry(material).stock();
@@ -48,14 +48,18 @@ public final class OrderBookGui {
         ItemMeta meta = center.getItemMeta();
         meta.setDisplayName(Text.color("&f&l" + Text.prettyEnum(material.name())));
         List<String> lore = new ArrayList<>();
-        lore.add(Text.color("&8────────────────"));
-        lore.add(Text.color("&7Category: &f" + plugin.market().categoryOf(material).display()));
-        lore.add(Text.color("&7Section: &f" + plugin.market().subcategoryOf(material).display()));
-        lore.add(Text.color("&7Server Stock: &f" + (infiniteStock ? "Unlimited" : stock)));
+        lore.add(Text.color(GuiTheme.RULE));
+        lore.add(Text.color(GuiTheme.stat("Category", plugin.market().categoryOf(material).display())));
+        lore.add(Text.color(GuiTheme.stat("Section", plugin.market().subcategoryOf(material).display())));
+        lore.add(Text.color(GuiTheme.stat("Server Stock", infiniteStock ? "Unlimited" : String.valueOf(stock))));
+        if (!infiniteStock) {
+            double reference = Math.max(1.0, plugin.getConfig().getDouble("market.target-stock", 512) * 2.0);
+            lore.add(Text.color(GuiTheme.bar(stock / reference, 12, "&a", "&8") + " &8supply"));
+        }
         lore.add("");
         lore.add(Text.color("&aInstant Buy: " + (canBuy ? "&f" + plugin.money(instantBuy) + " &7each" : "&8Unavailable")));
         lore.add(Text.color("&cInstant Sell: " + (canSell ? "&f" + plugin.money(instantSell) + " &7each" : "&8Unavailable")));
-        lore.add(Text.color("&7Your eligible items: &f" + eligibleOwned));
+        lore.add(Text.color(GuiTheme.stat("Your eligible items", eligibleOwned)));
         lore.add("");
         lore.add(Text.color("&7Best Buy Order: " + (bestBuy > 0 ? "&a" + plugin.money(bestBuy) : "&8None")));
         lore.add(Text.color("&7Best Sell Order: " + (bestSell > 0 ? "&c" + plugin.money(bestSell) : "&8None")));
@@ -77,86 +81,66 @@ public final class OrderBookGui {
             inv.setItem(sellSlots[i], orderIcon(sells.get(i), false));
         }
 
-        inv.setItem(9, ShopGui.named(Material.LIME_STAINED_GLASS_PANE, "&aTop Buy Orders",
-                List.of("&7Highest player bid first.", "&7Older orders win price ties.")));
-        inv.setItem(27, ShopGui.named(Material.RED_STAINED_GLASS_PANE, "&cTop Sell Orders",
-                List.of("&7Lowest player ask first.", "&7Older orders win price ties.")));
+        inv.setItem(9, GuiTheme.panel(Material.LIME_STAINED_GLASS_PANE, "&a&lTOP BUY ORDERS",
+                List.of("&7Highest player bid first.", "&8Older orders win price ties.")));
+        inv.setItem(27, GuiTheme.panel(Material.RED_STAINED_GLASS_PANE, "&c&lTOP SELL ORDERS",
+                List.of("&7Lowest player ask first.", "&8Older orders win price ties.")));
 
-        inv.setItem(20, ShopGui.named(canBuy ? Material.EMERALD_BLOCK : Material.BARRIER,
-                canBuy ? "&a&lBUY 1" : "&c&lBUY UNAVAILABLE",
-                canBuy
-                        ? List.of(
-                                "&7Buy exactly one item from server stock.",
-                                "&7Price: &f" + plugin.money(instantBuy),
-                                "",
-                                "&eClick to buy 1",
-                                "&8Works the same on Java and Bedrock.")
-                        : List.of("&7This item cannot currently be", "&7bought directly from server stock.")));
+        String buyBlocked = "This item cannot be bought from server stock right now.";
+        String sellBlocked = "This item cannot be sold to the server market right now.";
 
-        inv.setItem(21, ShopGui.named(canBuy ? Material.OAK_SIGN : Material.BARRIER,
-                canBuy ? "&aCustom Buy Amount" : "&cCustom Buy Unavailable",
-                canBuy
-                        ? List.of(
-                                "&7Choose an exact amount to buy",
-                                "&7from the server market.",
-                                "",
-                                "&7Price each: &f" + plugin.money(instantBuy),
-                                "&7Available stock: &f" + (infiniteStock ? "Unlimited" : stock),
-                                "",
-                                "&eClick, then type the amount in chat",
-                                "&8Examples: 5, 128, 2k")
-                        : List.of("&7This item cannot currently be", "&7bought directly from server stock.")));
+        inv.setItem(20, canBuy
+                ? GuiTheme.button(Material.EMERALD_BLOCK, "&a&lBUY 1",
+                        List.of("&7Buy exactly one item from server stock.",
+                                GuiTheme.stat("Price", plugin.money(instantBuy))), "Click to buy 1")
+                : GuiTheme.locked(Material.BARRIER, "BUY 1", List.of(), buyBlocked));
 
-        inv.setItem(22, ShopGui.named(canBuy ? Material.EMERALD : Material.BARRIER,
-                canBuy ? "&aBuy " + stackSize : "&cBuy Stack Unavailable",
-                canBuy
-                        ? List.of(
-                                "&7Buy up to one full material stack.",
-                                "&7Amount: &f" + stackSize,
-                                "&7Price each: &f" + plugin.money(instantBuy),
-                                "",
-                                "&eClick to buy")
-                        : List.of("&7This item cannot currently be", "&7bought directly from server stock.")));
+        inv.setItem(21, canBuy
+                ? GuiTheme.button(Material.OAK_SIGN, "&a&lCUSTOM BUY AMOUNT",
+                        List.of("&7Choose an exact amount to buy",
+                                "&7from the server market.", "",
+                                GuiTheme.stat("Price each", plugin.money(instantBuy)),
+                                GuiTheme.stat("Available stock", infiniteStock ? "Unlimited" : String.valueOf(stock)),
+                                "&8Examples: 5, 128, 2k"), "Click, then type the amount in chat")
+                : GuiTheme.locked(Material.BARRIER, "CUSTOM BUY AMOUNT", List.of(), buyBlocked));
 
-        inv.setItem(24, ShopGui.named(canSell ? Material.REDSTONE_BLOCK : Material.BARRIER,
-                canSell ? "&c&lSELL 1" : "&c&lSELL UNAVAILABLE",
-                canSell
-                        ? List.of(
-                                "&7Sell exactly one eligible item",
+        inv.setItem(22, canBuy
+                ? GuiTheme.button(Material.EMERALD, "&aBuy " + stackSize,
+                        List.of("&7Buy up to one full material stack.",
+                                GuiTheme.stat("Amount", stackSize),
+                                GuiTheme.stat("Price each", plugin.money(instantBuy))), "Click to buy a stack")
+                : GuiTheme.locked(Material.BARRIER, "BUY STACK", List.of(), buyBlocked));
+
+        inv.setItem(24, canSell
+                ? GuiTheme.button(Material.REDSTONE_BLOCK, "&c&lSELL 1",
+                        List.of("&7Sell exactly one eligible item",
                                 "&7to the server market.",
-                                "&7Price: &f" + plugin.money(instantSell),
-                                "",
-                                "&eClick to sell 1",
-                                "&8Transaction fee is deducted from payout.")
-                        : List.of("&7This item cannot currently", "&7be sold to the server market.")));
+                                GuiTheme.stat("Price", plugin.money(instantSell)),
+                                "&8Transaction fee is deducted from payout."), "Click to sell 1")
+                : GuiTheme.locked(Material.BARRIER, "SELL 1", List.of(), sellBlocked));
 
-        inv.setItem(25, ShopGui.named(canSell ? Material.REDSTONE : Material.BARRIER,
-                canSell ? "&cSell up to " + stackSize : "&cSell Stack Unavailable",
-                canSell
-                        ? List.of(
-                                "&7Sell up to one full material stack.",
-                                "&7Maximum amount: &f" + stackSize,
-                                "&7Eligible in inventory: &f" + eligibleOwned,
-                                "&7Price each: &f" + plugin.money(instantSell),
-                                "",
-                                "&eClick to sell")
-                        : List.of("&7This item cannot currently", "&7be sold to the server market.")));
+        inv.setItem(25, canSell
+                ? GuiTheme.button(Material.REDSTONE, "&cSell up to " + stackSize,
+                        List.of("&7Sell up to one full material stack.",
+                                GuiTheme.stat("Maximum amount", stackSize),
+                                GuiTheme.stat("Eligible in inventory", eligibleOwned),
+                                GuiTheme.stat("Price each", plugin.money(instantSell))), "Click to sell a stack")
+                : GuiTheme.locked(Material.BARRIER, "SELL STACK", List.of(), sellBlocked));
 
-        inv.setItem(45, ShopGui.named(Material.ARROW, "&eBack to Bazaar",
-                List.of("&7Return to market categories.")));
-        inv.setItem(46, ShopGui.named(Material.WRITABLE_BOOK, "&bAll Market Orders",
-                List.of("&7Browse active Buy and Sell Orders", "&7for every Bazaar item.", "", "&eClick to browse")));
-        inv.setItem(47, ShopGui.named(Material.EMERALD, "&aCreate Buy Order",
-                List.of("&7Escrow money now and wait", "&7for matching Sell Orders.", "", "&eClick to enter amount + price")));
-        inv.setItem(49, ShopGui.named(Material.GOLD_INGOT,
-                "&6Balance: &f" + plugin.money(plugin.wallets().get(player.getUniqueId())),
-                List.of("&7Economy: &f" + plugin.wallets().providerName())));
-        inv.setItem(51, ShopGui.named(Material.REDSTONE, "&cCreate Sell Order",
-                List.of("&7Escrow eligible items now and wait", "&7for matching Buy Orders.", "", "&eClick to enter amount + price")));
-        inv.setItem(52, ShopGui.named(Material.BOOK, "&bMy Orders",
-                List.of("&7Active orders: &f" + plugin.orders().owned(player.getUniqueId()).size(), "", "&eClick to manage")));
-        inv.setItem(53, ShopGui.named(Material.ENDER_CHEST, "&aClaim Filled Items",
-                List.of("&7Claimable items: &f" + plugin.orders().claimCount(player.getUniqueId()), "", "&eClick to claim")));
+        inv.setItem(45, GuiTheme.back("market categories"));
+        inv.setItem(46, GuiTheme.button(Material.WRITABLE_BOOK, "&b&lALL MARKET ORDERS",
+                List.of("&7Browse active Buy and Sell Orders", "&7for every Bazaar item."), "Click to browse"));
+        inv.setItem(47, GuiTheme.button(Material.EMERALD, "&a&lCREATE BUY ORDER",
+                List.of("&7Escrow money now and wait", "&7for matching Sell Orders."), "Click to enter amount and price"));
+        inv.setItem(49, GuiTheme.panel(Material.GOLD_INGOT,
+                "&6&lBALANCE &8• &f" + plugin.money(plugin.wallets().get(player.getUniqueId())),
+                List.of(GuiTheme.stat("Economy", plugin.wallets().providerName()))));
+        inv.setItem(51, GuiTheme.button(Material.REDSTONE, "&c&lCREATE SELL ORDER",
+                List.of("&7Escrow eligible items now and wait", "&7for matching Buy Orders."), "Click to enter amount and price"));
+        inv.setItem(52, GuiTheme.button(Material.BOOK, "&b&lMY ORDERS",
+                List.of(GuiTheme.stat("Active orders", plugin.orders().owned(player.getUniqueId()).size())), "Click to manage"));
+        inv.setItem(53, GuiTheme.button(Material.ENDER_CHEST, "&a&lCLAIM FILLED ITEMS",
+                List.of(GuiTheme.stat("Claimable items", plugin.orders().claimCount(player.getUniqueId()))), "Click to claim"));
         player.openInventory(inv);
     }
 
@@ -178,7 +162,7 @@ public final class OrderBookGui {
         int page = Math.max(0, Math.min(pages - 1, requestedPage));
 
         Inventory inv = Bukkit.createInventory(new GlobalOrdersHolder(filter, page), 54,
-                Text.color("&8IncogEcon &7• &fAll Market Orders"));
+                GuiTheme.title("&b&l", "All Market Orders"));
         fill(inv);
 
         int start = page * perPage;
@@ -188,28 +172,27 @@ public final class OrderBookGui {
             ItemMeta meta = icon.getItemMeta();
             List<String> lore = meta.getLore() == null ? new ArrayList<>() : new ArrayList<>(meta.getLore());
             lore.add("");
-            lore.add(Text.color("&eClick to open this item's Bazaar page"));
+            lore.add(Text.color("&e" + GuiTheme.CHEVRON + "Click to open this item's Bazaar page"));
             meta.setLore(lore);
             icon.setItemMeta(meta);
             inv.setItem(slot, icon);
         }
 
-        if (page > 0) inv.setItem(45, ShopGui.named(Material.ARROW, "&ePrevious Page", List.of()));
-        inv.setItem(46, ShopGui.named(Material.BOOK, filter.equals("ALL") ? "&aAll Orders" : "&7All Orders",
-                List.of("&7Show Buy and Sell Orders.", "", "&eClick to filter")));
-        inv.setItem(47, ShopGui.named(Material.LIME_CONCRETE, filter.equals("BUY") ? "&aBuy Orders ✓" : "&aBuy Orders",
-                List.of("&7Show only active Buy Orders.", "", "&eClick to filter")));
-        inv.setItem(48, ShopGui.named(Material.RED_CONCRETE, filter.equals("SELL") ? "&cSell Orders ✓" : "&cSell Orders",
-                List.of("&7Show only active Sell Orders.", "", "&eClick to filter")));
-        inv.setItem(49, ShopGui.named(Material.CHEST, "&eBack to Market",
-                List.of("&7Return to market categories.")));
-        inv.setItem(50, ShopGui.named(Material.PAPER, "&fPage &e" + (page + 1) + "&7/&e" + pages,
-                List.of("&7Matching active orders: &f" + all.size())));
-        inv.setItem(51, ShopGui.named(Material.WRITABLE_BOOK, "&bMy Orders",
-                List.of("&7Your active orders: &f" + plugin.orders().owned(player.getUniqueId()).size(), "", "&eClick to manage")));
-        inv.setItem(52, ShopGui.named(Material.ENDER_CHEST, "&aClaim Filled Items",
-                List.of("&7Waiting: &f" + plugin.orders().claimCount(player.getUniqueId()), "", "&eClick to claim")));
-        if (page + 1 < pages) inv.setItem(53, ShopGui.named(Material.ARROW, "&eNext Page", List.of()));
+        if (page > 0) inv.setItem(45, GuiTheme.previousPage(page, true));
+        inv.setItem(46, GuiTheme.button(Material.BOOK, (filter.equals("ALL") ? "&a&lALL ORDERS ✔" : "&7All Orders"),
+                List.of("&7Show Buy and Sell Orders."), "Click to filter"));
+        inv.setItem(47, GuiTheme.button(Material.LIME_CONCRETE, filter.equals("BUY") ? "&a&lBUY ORDERS ✔" : "&aBuy Orders",
+                List.of("&7Show only active Buy Orders."), "Click to filter"));
+        inv.setItem(48, GuiTheme.button(Material.RED_CONCRETE, filter.equals("SELL") ? "&c&lSELL ORDERS ✔" : "&cSell Orders",
+                List.of("&7Show only active Sell Orders."), "Click to filter"));
+        inv.setItem(49, GuiTheme.button(Material.CHEST, "&eBack to Market",
+                List.of("&7Return to market categories."), "Click to go back"));
+        inv.setItem(50, GuiTheme.pageIndicator(page + 1, pages, "Matching active orders", all.size()));
+        inv.setItem(51, GuiTheme.button(Material.WRITABLE_BOOK, "&b&lMY ORDERS",
+                List.of(GuiTheme.stat("Your active orders", plugin.orders().owned(player.getUniqueId()).size())), "Click to manage"));
+        inv.setItem(52, GuiTheme.button(Material.ENDER_CHEST, "&a&lCLAIM FILLED ITEMS",
+                List.of(GuiTheme.stat("Waiting", plugin.orders().claimCount(player.getUniqueId()))), "Click to claim"));
+        if (page + 1 < pages) inv.setItem(53, GuiTheme.nextPage(page + 2, true));
 
         player.openInventory(inv);
     }
@@ -232,7 +215,7 @@ public final class OrderBookGui {
         List<MarketOrder> own = plugin.orders().owned(player.getUniqueId());
         int pages = Math.max(1, (int)Math.ceil(own.size() / 45.0));
         int page = Math.max(0, Math.min(pages - 1, requestedPage));
-        Inventory inv = Bukkit.createInventory(new MyOrdersHolder(page), 54, Text.color("&8IncogEcon &7• &fMy Orders"));
+        Inventory inv = Bukkit.createInventory(new MyOrdersHolder(page), 54, GuiTheme.title("&b&l", "My Orders"));
         fill(inv);
         int start = page * 45;
         for (int slot = 0; slot < 45 && start + slot < own.size(); slot++) {
@@ -240,14 +223,16 @@ public final class OrderBookGui {
             ItemStack icon = orderIcon(order, order.type() == MarketOrder.Type.BUY);
             ItemMeta meta = icon.getItemMeta();
             List<String> lore = meta.getLore() == null ? new ArrayList<>() : new ArrayList<>(meta.getLore());
-            lore.add(""); lore.add(Text.color("&cClick to cancel and return escrow"));
+            lore.add(""); lore.add(Text.color("&c" + GuiTheme.CHEVRON + "Click to cancel and return escrow"));
             meta.setLore(lore); icon.setItemMeta(meta); inv.setItem(slot, icon);
         }
-        if (page > 0) inv.setItem(45, ShopGui.named(Material.ARROW, "&ePrevious Page", List.of()));
-        inv.setItem(49, ShopGui.named(Material.BOOK, "&bMy Market Orders", List.of("&7Active: &f" + own.size(), "&7Page: &f" + (page + 1) + "/" + pages)));
-        inv.setItem(50, ShopGui.named(Material.ENDER_CHEST, "&aClaim Items", List.of("&7Waiting: &f" + plugin.orders().claimCount(player.getUniqueId()))));
-        inv.setItem(48, ShopGui.named(Material.CHEST, "&eBack to Market", List.of()));
-        if (page + 1 < pages) inv.setItem(53, ShopGui.named(Material.ARROW, "&eNext Page", List.of()));
+        if (page > 0) inv.setItem(45, GuiTheme.previousPage(page, true));
+        inv.setItem(49, GuiTheme.panel(Material.BOOK, "&b&lMY MARKET ORDERS",
+                List.of(GuiTheme.stat("Active", own.size()), GuiTheme.stat("Page", (page + 1) + "/" + pages))));
+        inv.setItem(50, GuiTheme.button(Material.ENDER_CHEST, "&a&lCLAIM ITEMS",
+                List.of(GuiTheme.stat("Waiting", plugin.orders().claimCount(player.getUniqueId()))), "Click to claim"));
+        inv.setItem(48, GuiTheme.button(Material.CHEST, "&eBack to Market", List.of("&7Return to market categories."), "Click to go back"));
+        if (page + 1 < pages) inv.setItem(53, GuiTheme.nextPage(page + 2, true));
         player.openInventory(inv);
     }
 
@@ -263,10 +248,14 @@ public final class OrderBookGui {
         ItemStack stack = new ItemStack(iconMaterial);
         ItemMeta meta = stack.getItemMeta();
         meta.setDisplayName(Text.color((buy ? "&aBuy " : "&cSell ") + Text.prettyEnum(order.material().name())));
+        double progress = order.originalAmount() <= 0 ? 0
+                : (order.originalAmount() - order.remaining()) / (double) order.originalAmount();
         meta.setLore(List.of(
-                Text.color("&7Price each: &f" + plugin.money(order.unitPrice())),
-                Text.color("&7Remaining: &f" + order.remaining() + "&7/&f" + order.originalAmount()),
-                Text.color("&7Owner: &f" + order.ownerName()),
+                Text.color(GuiTheme.RULE),
+                Text.color(GuiTheme.stat("Price each", plugin.money(order.unitPrice()))),
+                Text.color(GuiTheme.stat("Remaining", order.remaining() + "&7/&f" + order.originalAmount())),
+                Text.color(GuiTheme.bar(progress, 10, buy ? "&a" : "&c", "&8") + " &8filled"),
+                Text.color(GuiTheme.stat("Owner", order.ownerName())),
                 Text.color("&7ID: &8" + order.id().toString().substring(0, 8))
         ));
         stack.setItemMeta(meta);
@@ -274,7 +263,6 @@ public final class OrderBookGui {
     }
 
     private void fill(Inventory inv) {
-        ItemStack filler = ShopGui.named(Material.BLACK_STAINED_GLASS_PANE, " ", List.of());
-        for (int i = 0; i < inv.getSize(); i++) inv.setItem(i, filler);
+        GuiTheme.fill(inv, GuiTheme.TRIM);
     }
 }

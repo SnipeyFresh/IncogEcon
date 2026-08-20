@@ -1,6 +1,8 @@
 # Cross-Platform Player Support
 
-IncogEcon 1.8.19 is designed so **normal player-facing features do not require Java-only inventory gestures**.
+IncogEcon 1.9.0 is designed so **normal player-facing features do not require Java-only inventory gestures**.
+
+The Hex follows the same rule: items are placed by clicking them in your inventory, every upgrade is a single left click, and amounts are typed in chat rather than on a sign.
 
 This matters on servers where Bedrock clients connect to the Java server through Geyser/Floodgate. IncogEcon itself does not depend on the Geyser/Floodgate API; it uses a player UI design that translates cleanly.
 

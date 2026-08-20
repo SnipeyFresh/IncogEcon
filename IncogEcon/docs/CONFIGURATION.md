@@ -133,6 +133,90 @@ stash:
     notify: true
 ```
 
+## The Hex
+
+```yaml
+hex:
+  enabled: true
+  essence:
+    allow-buying: true
+    types:
+      WITHER:
+        display: "&8Wither Essence"
+        icon: WITHER_SKELETON_SKULL
+        buy-price: 750.0
+    drops:
+      enabled: true
+      notify: true
+      mobs:
+        WITHER_SKELETON: { type: WITHER, chance: 0.35, minimum: 1, maximum: 3 }
+```
+
+### Essence
+
+Each entry under `hex.essence.types` defines one currency. The key is the id used by `/hex buy`, `/hex give`, and every upgrade cost. `buy-price` is the coin price of a single unit; set it to `0` to make an essence earnable only.
+
+`hex.essence.drops.mobs` accepts any Bukkit entity type. Each entry names the essence `type`, a `chance` between `0.0` and `1.0`, and a `minimum`/`maximum` amount. Only kills credited to a player with `incogshop.hex` drop essence.
+
+### Upgrade costs
+
+Every upgrade under `hex.upgrades` uses the same cost shape:
+
+```
+coins   = coin-base    + coin-per-level    * (level - 1)
+essence = essence-base + essence-per-level * (level - 1)
+```
+
+| Upgrade | Config key | Default cap |
+|---|---|---|
+| Hex Tier | `hex.upgrades.tier` | 10 |
+| Master Stars | `hex.upgrades.stars` | 5 |
+| Hot Potato Points | `hex.upgrades.hot-potato` | 10 |
+| Gemstone Slots | `hex.upgrades.gemstone-slots` | 3 |
+| Recombobulator | `hex.upgrades.recombobulator` | 1 |
+| Enchantment Power | `hex.upgrades.enchantments` | `max-level-above-vanilla`, default 2 |
+
+The `*-per-level`, `*-per-star`, `*-per-point`, and `*-per-slot` stat values are applied as item attribute modifiers owned by IncogEcon. Enchantment Power raises every enchantment on the item by one level at a time, up to `max-level-above-vanilla` over its normal maximum, and its cost is multiplied by the number of enchantments actually upgraded.
+
+Setting any upgrade's `enabled` to `false` removes it from the menu without touching items that already carry it.
+
+### Reforges
+
+```yaml
+hex:
+  reforge:
+    enabled: true
+    essence-type: SPIDER
+    essence-cost: 3
+    coin-cost: 1500.0
+    native:
+      SHARP:
+        display: "&cSharp"
+        attack-damage: 3.0
+```
+
+`hex.reforge.native` is only used when no supported reforge plugin is installed. Each entry accepts `attack-damage`, `armor`, `armor-toughness`, `health`, and `speed`, and values may be negative.
+
+### Plugin compatibility
+
+```yaml
+hex:
+  integrations:
+    ecoarmor:
+      enabled: true
+      tier-upgrade: { essence-type: DRAGON, essence-cost: 20, coin-cost: 25000.0 }
+      advancement: { essence-type: WITHER, essence-cost: 30, coin-cost: 40000.0 }
+    reforges: { enabled: true }
+    mmoitems: { enabled: true }
+    ecoitems: { enabled: true }
+    itemsadder: { enabled: true }
+    oraxen: { enabled: true }
+    nexo: { enabled: true }
+    protect-unknown-custom-items: true
+```
+
+None of these plugins is a dependency. Each hook is detected at runtime and stays inactive when its plugin is missing. `protect-unknown-custom-items` makes the Hex refuse native upgrades on items issued by a custom-item plugin it cannot upgrade safely; items owned by a supported armor-upgrade plugin such as EcoArmor stay fully upgradable. Run `/hex compat` in game to see which hooks are active.
+
 ## Saving
 
 ```yaml

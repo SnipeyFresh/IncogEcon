@@ -44,7 +44,7 @@ mvn clean package
 Output:
 
 ```text
-target/IncogEcon-1.8.19.jar
+target/IncogEcon-1.9.0.jar
 ```
 
 Only the JAR belongs in the server's `plugins/` directory. Vault is required at runtime. DiscordSRV is optional.

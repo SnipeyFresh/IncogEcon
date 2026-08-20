@@ -1,6 +1,6 @@
 # Commands
 
-All commands below are present in IncogEcon 1.8.19.
+All commands below are present in IncogEcon 1.9.0.
 
 ## Market / Bazaar
 
@@ -17,6 +17,19 @@ All commands below are present in IncogEcon 1.8.19.
 | `/market claim` | Claim filled-order items |
 
 Order price examples: `10k`, `2.5m`, `1b`.
+
+## The Hex
+
+| Command | Description |
+|---|---|
+| `/hex` | Open The Hex item-upgrade menu |
+| `/hex essence` | Show your essence balances in chat |
+| `/hex buy <essence> <amount>` | Buy essence with coins |
+| `/hex compat` | List detected upgrade/custom-item plugins and their hook state |
+| `/hex give <player> <essence> <amount>` | Admin: grant essence |
+| `/hex take <player> <essence> <amount>` | Admin: remove essence |
+
+Essence ids come from `hex.essence.types` in `config.yml` (`WITHER`, `UNDEAD`, `DRAGON`, `SPIDER`, `ICE`, `DIAMOND`, `GOLD`, `CRIMSON` by default).
 
 ## Bulk selling
 

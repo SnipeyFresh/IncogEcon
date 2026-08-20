@@ -2,6 +2,35 @@
 
 All notable IncogEcon development changes preserved from the project history.
 
+## IncogEcon 1.9.0
+
+### The Hex
+
+- Added **The Hex** (`/hex`), an item-upgrade hub inspired by Hypixel Skyblock's Hex.
+- Added configurable **essence** currencies, earned from a per-mob drop table or bought with coins in the Hex essence shop and `/hex buy`.
+- Added Hex upgrades: **Hex Tier**, **Master Stars**, **Hot Potato Points**, **Gemstone Slots**, **Recombobulator**, **Enchantment Power**, and **Reforge**.
+- Upgrade state is stored in the item's persistent data container, so it survives drops, chests, trades, and other plugins rewriting item lore.
+- Hex stat bonuses are applied as IncogEcon-owned attribute modifiers, and the item's built-in attributes are preserved so an upgrade never strips a weapon's base damage.
+- Added `/hex essence`, `/hex compat`, and admin `/hex give` / `/hex take`.
+- Added `hex-essence.yml`, included in autosave, `saveAllData`, and `/marketadmin reload`.
+- Added permissions `incogshop.hex`, `incogshop.hex.buy`, and `incogshop.hex.admin`.
+
+### Plugin compatibility
+
+- Added an optional-hook layer for the Hex. No new build dependencies: every hook is detected at runtime through the other plugin's own API and stays inactive when that plugin is missing.
+- **EcoArmor**: reads set, tier, and advancement state; adds Hex-paid tier upgrades and the advancement upgrade through EcoArmor's own API, with automatic refunds when EcoArmor refuses the change.
+- **Reforges** (Auxilor): when installed, the Hex reforge station offers that plugin's reforges and applies them through its API. IncogEcon's native reforge table is used only when no reforge plugin is present.
+- **MMOItems**, **EcoItems**, **ItemsAdder**, **Oraxen**, **Nexo**: items are recognised and described, and `protect-unknown-custom-items` stops the Hex from modifying items it cannot upgrade safely.
+- Added `/hex compat` and a startup log line reporting detected hooks.
+
+### Menu redesign
+
+- Added a shared `GuiTheme` and rebuilt every IncogEcon menu on top of it: consistent titles, borders, button call-to-actions, stat lines, progress bars, and navigation items.
+- Unavailable controls are now shown greyed out with the reason instead of a generic barrier.
+- Added progress bars for market supply, order fill, stored XP, auction duration, and Hex upgrade levels.
+- Slot positions, click behaviour, and `gui-layout.yml` are unchanged; the redesign is visual only.
+- The Hex follows the existing cross-platform rules: single left clicks and chat input only.
+
 ## IncogEcon 1.8.19
 
 ## Cross-platform player UI
