@@ -2,7 +2,7 @@
 
 **IncogEcon** is a full economy suite for **Paper/Purpur 26.2** with a Bazaar-style dynamic server market, player Buy/Sell Orders, an Auction House, physical player shops, secure item-and-money trading, Sell Wands, overflow storage, an XP Vault, Discord price history, and extensive administration tools.
 
-**Current version:** `1.8.19`  
+**Current version:** `1.9.0`  
 **Developer:** SnipeyFresh  
 **Java:** 25+  
 **Build system:** Maven
@@ -21,6 +21,7 @@
 - **XP Vault** storing raw experience points.
 - **DiscordSRV price checks** and historical market price tracking.
 - **Admin Studio** for categories, item organization, stock, pricing, market modes, infinite stock, auto restock, and GUI layout design.
+- **The Hex** — a coin-based item upgrade station where players reforge weapons, tools, and armor (via IncogRPG) and apply custom enchants (IncogRPG + ExcellentEnchants). All costs are coin-only; both integrations are soft-depend and loaded via reflection at runtime with zero compile-time coupling.
 - **Incog-Shop -> IncogEcon migration** that preserves older data on first startup after the rename.
 
 ## Cross-platform player support
@@ -48,12 +49,14 @@ See [CROSS-PLATFORM.md](CROSS-PLATFORM.md) for the full compatibility design.
 ### Optional
 
 - DiscordSRV `1.30.5` for Discord price commands/history integration
+- **IncogRPG** for Hex reforges and IncogRPG custom enchants (loaded via reflection — no hard dependency)
+- **ExcellentEnchants** for Hex enchant support (loaded via reflection — no hard dependency)
 - Geyser/Floodgate for Bedrock connectivity; IncogEcon does **not** directly depend on their APIs
 
 ## Installation
 
 1. Install Vault and your economy provider.
-2. Place `IncogEcon-1.8.19.jar` in the server's `plugins/` folder.
+2. Place `IncogEcon-1.9.0.jar` in the server's `plugins/` folder.
 3. Start the server once.
 4. Configure `plugins/IncogEcon/config.yml` as needed.
 5. Restart or use `/marketadmin reload` after safe configuration changes.
@@ -69,7 +72,7 @@ mvn clean package
 Output:
 
 ```text
-target/IncogEcon-1.8.19.jar
+target/IncogEcon-1.9.0.jar
 ```
 
 See [MAVEN-BUILD.md](MAVEN-BUILD.md) for build prerequisites and Arch Linux notes.
@@ -86,6 +89,8 @@ See [MAVEN-BUILD.md](MAVEN-BUILD.md) for build prerequisites and Arch Linux note
 | `/pshop ...` | Create/manage physical player shops |
 | `/trade ...` | Securely trade items and money |
 | `/market ...order...` | Create/manage player market orders |
+| `/hex` | Open The Hex — reforge and enchant items with coins |
+| `/hex compat` | Show IncogRPG + ExcellentEnchants integration status |
 
 Full syntax: [docs/COMMANDS.md](docs/COMMANDS.md)
 
@@ -113,6 +118,7 @@ IncogEcon intentionally keeps the legacy `incogshop.*` permission namespace afte
 | `incogshop.auction.buy` | `true` | Buy BIN listings |
 | `incogshop.trade` | `true` | Send/accept/complete player trades |
 | `incogshop.sellwand.use` | `true` | Use a genuine Sell Wand |
+| `incogshop.hex` | `true` | Open `/hex` and use The Hex |
 
 ## Bypass / elevated permissions
 
@@ -124,6 +130,7 @@ IncogEcon intentionally keeps the legacy `incogshop.*` permission namespace afte
 | `incogshop.auction.bypasslimit` | `op` | Ignore Auction House listing limit |
 | `incogshop.auction.admin` | `op` | Auction administration/permanent listings |
 | `incogshop.sellwand.give` | `op` | Use `/sellwand` to obtain a wand |
+| `incogshop.hex.admin` | `op` | Use `/hex compat` and future Hex admin features |
 
 ## IncogEcon administration
 
