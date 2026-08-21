@@ -5,7 +5,7 @@ api-version: '26.2'
 author: SnipeyFresh
 load: POSTWORLD
 depend: [Vault]
-softdepend: [DiscordSRV, IncogRPG, ExcellentEnchants]
+softdepend: [DiscordSRV, EcoArmor, Reforges, MMOItems, EcoItems, ItemsAdder, Oraxen, Nexo]
 description: Dynamic player-supplied market with orders, physical shops, player trading, Auction House, and Discord price history.
 commands:
   market:
@@ -26,8 +26,8 @@ commands:
     aliases: [xpbank]
     permission: incogshop.xpvault
   hex:
-    description: Open The Hex to reforge and enchant items with coins.
-    usage: /hex [compat]
+    description: Open The Hex to upgrade an item with essence and coins.
+    usage: /hex [essence|buy|compat]
     permission: incogshop.hex
   ah:
     description: Browse and manage the Auction House.
@@ -60,10 +60,15 @@ permissions:
   incogshop.xpvault:
     default: true
   incogshop.hex:
-    description: Allows using The Hex to reforge and enchant items.
+    description: Allows using The Hex to upgrade items.
+    default: true
+    children:
+      incogshop.hex.buy: true
+  incogshop.hex.buy:
+    description: Allows buying essence with coins.
     default: true
   incogshop.hex.admin:
-    description: Allows admin use of /hex compat and future admin features.
+    description: Allows granting and removing player essence.
     default: op
   incogshop.orders:
     default: true
