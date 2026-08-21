@@ -164,7 +164,6 @@ public final class IncogShopPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new StashOverflowListener(this), this);
         getServer().getPluginManager().registerEvents(new XpVaultGuiListener(this), this);
         getServer().getPluginManager().registerEvents(new HexGuiListener(this), this);
-        getServer().getPluginManager().registerEvents(new HexEssenceListener(this), this);
         getServer().getPluginManager().registerEvents(new AuctionGuiListener(this), this);
         getServer().getPluginManager().registerEvents(new OrderGuiListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopProtectionListener(this), this);
